@@ -39,6 +39,7 @@
     "eslint-plugin-node": "^8.0.1",
     "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-standard": "^4.0.0",
+    "eth-gas-reporter": "^0.2.0",
     "ethlint": "^1.2.4",
     "ganache-cli": "^6.4.3",
     "solidity-coverage": "^0.5.11",
