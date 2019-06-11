@@ -14,18 +14,6 @@ contract("VRF", accounts => {
     before(async () => {
       vrf = await VRF.deployed()
     })
-    it("should Add two small numbers", async () => {
-      var x1 = new BN(2)
-      var z1 = new BN(3)
-      var x2 = new BN(4)
-      var z2 = new BN(5)
-      const res = await vrf.add(x1, z1, x2, z2)
-      var x3 = res[0]
-      var z3 = res[1]
-      assert.equal(x3.toString(10), "22")
-      assert.equal(z3.toString(10), "15")
-    })
-    // To be continued...
 
     it("should convert a uint to bytes", async () => {
       const res = await vrf.uint256ToBytes(4)
