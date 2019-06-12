@@ -40,6 +40,22 @@ contract VRF is EllipticCurve {
     return [x, y];
   }
 
+  function encode_point(uint256 x, uint256 y) public pure returns (bytes memory) {
+    uint8 prefix = uint8(2 + (y % 2));
+    bytes memory pb1 = new bytes(1);
+    pb1[0] = byte(prefix);
+    bytes memory pb2 = uint256ToBytes(x);
+
+    return mergeBytes(pb1, pb2);
+  }
+
+  function verify_with_message(uint256[2] memory publicKey, uint256[4] memory proof, bytes memory message) public pure returns (bool) {
+    uint[2] memory h_point;
+    (h_point[0], h_point[1]) = hashToTryAndIncrement(publicKey, message);
+
+    return verify(publicKey, proof, h_point);
+  }
+
   function verify(uint256[2] memory publicKey, uint256[4] memory proof, uint256[2] memory h_point) public pure returns (bool) {
 
     // // uint256 gamma_x = proof[0];
@@ -51,33 +67,18 @@ contract VRF is EllipticCurve {
 
     // // Step 2: Hash to try and increment
     // // Output: hashed value, a finite EC point in G
-    // // (uint256 h_x, uint256 h_y) = _hashToTryAndIncrement(gamma_x, gamma_y, message);
+    // // (uint256 h_x, uint256 h_y) = _hashToTryAndIncrement(publicX, publicY, message);
 
     // // Step 3: U = s*B - c*Y (where B is the generator)
-    // (uint256 sB_x, uint256 sB_y) = derivePublicKey(proof[3]);
-    // (uint256 cY_x, uint256 cY_y) = deriveKey(proof[2], publicKey[0], publicKey[1]);
-    // (uint256 u_x, uint256 u_y) = _jSub(sB_x, sB_y, cY_x, cY_y);
     (uint256 u_x, uint256 u_y) = sub2Muls(proof[3], gx, gy, proof[2], publicKey[0], publicKey[1]);
 
     // // Step 4: V = s*H - c*Gamma
-    // (uint256 sH_x, uint256 sH_y) = deriveKey(proof[3], h_point[0], h_point[1]);
-    // (uint256 cG_x, uint256 cG_y) = deriveKey(proof[2], proof[0], proof[1]);
-
-    // uint256 mcG_y = _inverse(cG_y);
-    // (uint256 v_x, uint256 v_y) = _jSub(sH_x, sH_y, cG_x, cG_y);
     (uint256 v_x, uint256 v_y) = sub2Muls(proof[3], h_point[0], h_point[1], proof[2], proof[0], proof[1]);
 
-
     // Step 5: derived c from hash points(...)
-    //let derived_c = self.hash_points(&[&h_point, &gamma_point, &u_point, &v_point])?;
     bytes16 derived_c = hash_points(h_point[0], h_point[1], proof[0], proof[1], u_x, u_y, v_x, v_y);
 
-    // // Step 6: Check validity c == c'
-    // uint256 dc;
-    // assembly {
-    //     dc := mload(add(derived_c, 0x20))
-    // }
-
+    // Step 6: Check validity c == c'
     return uint128(derived_c) == proof[2];
   }
 
@@ -108,19 +109,19 @@ contract VRF is EllipticCurve {
     // Prefix 0x02
     c[1] = byte(uint8(2));
     // Points to Bytes
-    bytes memory hBytes = point_to_bytes(h_x, h_y);
+    bytes memory hBytes = encode_point(h_x, h_y);
     for (uint i = 0; i < hBytes.length; i++) {
       c[2+i] = hBytes[i];
     }
-    bytes memory gammaBytes = point_to_bytes(gamma_x, gamma_y);
+    bytes memory gammaBytes = encode_point(gamma_x, gamma_y);
     for (uint i = 0; i < gammaBytes.length; i++) {
       c[35+i] = gammaBytes[i];
     }
-    bytes memory uBytes = point_to_bytes(u_x, u_y);
+    bytes memory uBytes = encode_point(u_x, u_y);
     for (uint i = 0; i < uBytes.length; i++) {
       c[68+i] = uBytes[i];
     }
-    bytes memory vBytes = point_to_bytes(v_x, v_y);
+    bytes memory vBytes = encode_point(v_x, v_y);
     for (uint i = 0; i < vBytes.length; i++) {
       c[101+i] = vBytes[i];
     }
@@ -137,15 +138,6 @@ contract VRF is EllipticCurve {
     }
 
     return half1;
-  }
-
-  function point_to_bytes (uint256 x, uint256 y) public pure returns (bytes memory) {
-    uint8 prefix = uint8(2 + (y % 2));
-    bytes memory pb1 = new bytes(1);
-    pb1[0] = byte(prefix);
-    bytes memory pb2 = uint256ToBytes(x);
-
-    return mergeBytes(pb1, pb2);
   }
 
   function mergeBytes(bytes memory a, bytes memory b) public pure returns (bytes memory) {
@@ -168,24 +160,43 @@ contract VRF is EllipticCurve {
     }
   }
 
-  // function _hashToTryAndIncrement (uint256 pk_x, uint256 pk_y, bytes memory message) public pure returns (uint256 h_x, uint256 h_y) {
-  //   // Step 1: public key to bytes
-  //   // 04+X+Y as uncompressed
-  //   // (02+X as compressed if Y is even)
-  //   // (03+X as compressed if Y is odd)
-  //   // Step 2: V = cipher_suite | 0x01 | public_key_bytes | message | ctr
-  //   // Step 3: find a valid EC point
-  //   // loop over counter ctr starting at 0x00 and do hash
-  //   // hash = sha256(V | ctr)
-  //   // Step 4: arbitraty string to point
-  //   // Step 5: calculate H
-  //   // If H is not "INVALID" and cofactor > 1, set H = cofactor * H
-  // }
+  function hashToTryAndIncrement(uint256[2] memory public_key, bytes memory message) public pure returns (uint, uint) {
+    // Prepare bytes
+    uint v_length = 2 + 33 + message.length + 1;
+    bytes memory c = new bytes(v_length);
+    uint8 ctr = 0;
 
-  // function _arbitratyStringToPoint (uint256 data) public pure returns (uint256 p_x, uint256 p_y) {
-  //   // Appending 0x02 is not neccesary as it will be assumed that it is compressed
-  //   // Create ECPoint from bytes
-  //   // beta = pow(int(x*x*x+A*x+B), int((P+1)//4), int(P))
-  // }
+    // Step 1: public key to bytes
+    bytes memory pkBytes = encode_point(public_key[0], public_key[1]);
+
+    // Step 2: V = cipher_suite | 0x01 | public_key_bytes | message | ctr
+    // Ciphersuite 0xFE
+    c[0] = byte(uint8(254));
+    // Prefix 0x02
+    c[1] = byte(uint8(1));
+    // Public Key
+    for (uint i = 0; i < pkBytes.length; i++) {
+      c[2+i] = pkBytes[i];
+    }
+    // Message
+    for (uint i = 0; i < message.length; i++) {
+      c[35+i] = message[i];
+    }
+    // Counter
+    c[v_length-1] = byte(ctr);
+
+    // Step 3: find a valid EC point
+    // loop over counter ctr starting at 0x00 and do hash
+    bytes32 sha = sha256(c);
+
+    // Step 4: arbitraty string to point
+    uint h_x = uint256(sha);
+    uint h_y = derive_y(2, h_x);
+
+    // Step 5: calculate H
+    // If H is not "INVALID" and cofactor > 1, set H = cofactor * H
+
+    return (h_x, h_y);
+  }
 
 }
