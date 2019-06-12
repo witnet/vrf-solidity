@@ -86,7 +86,7 @@ contract VRF is EllipticCurve {
   function sub2Muls(uint256 s1, uint256 a1, uint256 a2, uint256 s2, uint256 b1, uint256 b2) internal pure returns (uint256, uint256) {
     (uint256 m1, uint256 m2) = deriveKey(s1, a1, a2);
     (uint256 n1, uint256 n2) = deriveKey(s2, b1, b2);
-    (uint256 r1, uint256 r2) = sub(m1, m2, n1, n2);
+    (uint256 r1, uint256 r2) = ecSub(m1, m2, n1, n2);
 
     return (r1, r2);
   }

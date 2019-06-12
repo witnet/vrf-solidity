@@ -156,11 +156,11 @@ contract EllipticCurve {
     }
   }
 
-  function inv(uint256 x1, uint256 y1) public pure returns (uint256 x3, uint256 y3) {
+  function ecInv(uint256 x1, uint256 y1) public pure returns (uint256 x3, uint256 y3) {
     (x3, y3) = (x1, (pp - y1) % pp);
   }
 
-  function add(uint256 x1, uint256 y1, uint256 x2, uint256 y2) public pure
+  function ecAdd(uint256 x1, uint256 y1, uint256 x2, uint256 y2) public pure
     returns(uint256 qx, uint256 qy)
   {
     (uint256 x, uint256 y, uint256 z) = _ecAdd(x1, y1, 1, x2, y2, 1);
@@ -169,11 +169,35 @@ contract EllipticCurve {
     qy = mulmod(y, z, pp);
   }
 
-  function sub(uint256 x1, uint256 y1, uint256 x2, uint256 y2) public pure
+  function ecSub(uint256 x1, uint256 y1, uint256 x2, uint256 y2) public pure
     returns(uint256 qx, uint256 qy)
   {
-    (uint256 x2, uint256 y2) = inv(x2, y2);
-    (qx, qy) = add(x1, y1, x2, y2);
+    (uint256 x2, uint256 y2) = ecInv(x2, y2);
+    (qx, qy) = ecAdd(x1, y1, x2, y2);
+  }
+
+  /**
+    * @dev Check if a point in affine coordinates is on the curve.
+    */
+  function isOnCurve(uint x, uint y) public pure returns (bool)
+  {
+    if (0 == x || x == pp || 0 == y || y == pp) {
+      return false;
+    }
+
+    uint LHS = mulmod(y, y, pp); // y^2
+    uint RHS = mulmod(mulmod(x, x, pp), x, pp); // x^3
+
+    //TODO: To delete if library is no generalized
+    if (a != 0) {
+      RHS = addmod(RHS, mulmod(x, a, pp), pp); // x^3 + a*x
+    }
+    //TODO: To delete if library is no generalized
+    if (b != 0) {
+      RHS = addmod(RHS, b, pp); // x^3 + a*x + b
+    }
+
+    return LHS == RHS;
   }
 
 }

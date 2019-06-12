@@ -46,7 +46,7 @@ contract("EC", accounts => {
       const z1 = web3.utils.toBN("0x825a3eb4f09a55637391c950ba5e25c1ea658a15f234c14ebec79e5c68bd4133")
       const x2 = web3.utils.toBN("0x1c2a90c4c30f60e878d1fe317acf4f2e059300e3deaa1c949628096ecaf993b2")
       const z2 = web3.utils.toBN("0x62bd40f3ca289a3ddbd8eddfa17074e15a770b8f5967f4de436104b44cc519e9")
-      const res = await ec.add(x1, z1, x2, z2)
+      const res = await ec.ecAdd(x1, z1, x2, z2)
       const sumX = res[0]
       const sumZ = res[1]
       const expectedSumX = web3.utils.toBN("0x957f0c13905d357d9e1ebaf32742b410d423fcf2410229d4e8093f3360d07b2c")
@@ -57,7 +57,7 @@ contract("EC", accounts => {
     it("Should Invert an ec point", async () => {
       const x = web3.utils.toBN("0x1c2a90c4c30f60e878d1fe317acf4f2e059300e3deaa1c949628096ecaf993b2")
       const y = web3.utils.toBN("0x9d42bf0c35d765c2242712205e8f8b1ea588f470a6980b21bc9efb4ab33ae246")
-      const invertedPoint = await ec.inv(x, y)
+      const invertedPoint = await ec.ecInv(x, y)
 
       const expectedY = web3.utils.toBN("0x62bd40f3ca289a3ddbd8eddfa17074e15a770b8f5967f4de436104b44cc519e9")
       assert.equal(invertedPoint[0].toString(), x.toString())
@@ -68,13 +68,25 @@ contract("EC", accounts => {
       const z1 = web3.utils.toBN("0x825a3eb4f09a55637391c950ba5e25c1ea658a15f234c14ebec79e5c68bd4133")
       const x2 = web3.utils.toBN("0x1c2a90c4c30f60e878d1fe317acf4f2e059300e3deaa1c949628096ecaf993b2")
       const z2 = web3.utils.toBN("0x9d42bf0c35d765c2242712205e8f8b1ea588f470a6980b21bc9efb4ab33ae246")
-      const res = await ec.sub(x1, z1, x2, z2)
+      const res = await ec.ecSub(x1, z1, x2, z2)
       const sumX = res[0]
       const sumZ = res[1]
       const expectedSubX = web3.utils.toBN("0x957f0c13905d357d9e1ebaf32742b410d423fcf2410229d4e8093f3360d07b2c")
       const expectedSubY = web3.utils.toBN("0x9a0d14288d3906e052bdcf12c2a469da3e7449068b3e119300b792da964ed977")
       assert.equal(sumX.toString(10), expectedSubX.toString())
       assert.equal(sumZ.toString(10), expectedSubY.toString())
+    })
+
+    it("Should identify if point is on the curve", async () => {
+      const x = web3.utils.toBN("0xe906a3b4379ddbff598994b2ff026766fb66424710776099b85111f23f8eebcc")
+      const y = web3.utils.toBN("0x7638965bf85f5f2b6641324389ef2ffb99576ba72ec19d8411a5ea1dd251b112")
+      assert.equal(await ec.isOnCurve(x, y), true)
+    })
+
+    it("Should identify if point is NOT on the curve", async () => {
+      const x = web3.utils.toBN("0x3bf754f48bc7c5fb077736c7d2abe85354be649caa94971f907b3a81759e5b5e")
+      const y = web3.utils.toBN("0x6b936ce0a2a40016bbb2eb0a4a1347b5af76a41d44b56dec26108269a45bce78")
+      assert.equal(await ec.isOnCurve(x, y), false)
     })
   })
 })
