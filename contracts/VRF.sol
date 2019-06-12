@@ -12,7 +12,6 @@ contract VRF is EllipticCurve {
 
     uint8 gamma_sign;
     uint256 gamma_x;
-    // uint256 gamma_y; // no sirve!
     uint128 c;
     uint256 s;
 
@@ -22,11 +21,23 @@ contract VRF is EllipticCurve {
       c := mload(add(proof, 49))
       s := mload(add(proof, 81))
     }
-    
 
-    uint256[2] memory gamma = decompress(gamma_sign, gamma_x);
+    uint256 gamma_y = derive_y(gamma_sign, gamma_x);
 
-    return [gamma[0], gamma[1], c, s];
+    return [gamma_x, gamma_y, c, s];
+  }
+
+  function decode_point(bytes memory proof) public pure returns (uint[2] memory) {
+    uint8 sign;
+    uint256 x;
+
+    assembly {
+      sign := mload(add(proof, 1))
+	    x := mload(add(proof, 33))
+    }
+    uint256 y = derive_y(sign, x);
+
+    return [x, y];
   }
 
   function verify(uint256[2] memory publicKey, uint256[4] memory proof, uint256[2] memory h_point) public pure returns (bool) {
@@ -80,14 +91,13 @@ contract VRF is EllipticCurve {
   }
 
   //TODO: to review
-  /// @dev See Curve.decompress
-  function decompress(uint8 yBit, uint256 x) public pure returns (uint256[2] memory P) {
+  /// @dev See Curve.derive_y
+  function derive_y(uint8 yBit, uint256 x) public pure returns (uint256 y) {
     uint256 p = pp;
     uint256 y2 = addmod(mulmod(x, mulmod(x, x, p), p), 7, p);
     uint256 y_ = _expMod(y2, (p + 1) / 4, p);
     // uint256 cmp = yBit ^ y_ & 1;
-    P[0] = x;
-    P[1] = (y_ + yBit) % 2 == 0 ? y_ : p - y_;
+    y = (y_ + yBit) % 2 == 0 ? y_ : p - y_;
   }
 
   function hash_points(uint256 h_x, uint256 h_y, uint256 gamma_x, uint256 gamma_y, uint256 u_x, uint256 u_y, uint256 v_x, uint256 v_y)
