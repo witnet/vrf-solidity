@@ -30,14 +30,14 @@ contract("VRF", accounts => {
     it("should encode an even point using the compressed binary format", async () => {
       const pointX = web3.utils.hexToBytes("0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798")
       const pointY = web3.utils.hexToBytes("0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8")
-      const res = await vrf.point_to_bytes(pointX, pointY)
+      const res = await vrf.encode_point(pointX, pointY)
       assert.equal(res.toString(), "0x0279BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798".toLowerCase())
     })
 
     it("should encode an odd point using the compressed binary format", async () => {
       const pointX = web3.utils.hexToBytes("0xFFF97BD5755EEEA420453A14355235D382F6472F8568A18B2F057A1460297556")
       const pointY = web3.utils.hexToBytes("0xAE12777AACFBB620F3BE96017F45C560DE80F0F6518FE4A03C870C36B075F297")
-      const res = await vrf.point_to_bytes(pointX, pointY)
+      const res = await vrf.encode_point(pointX, pointY)
       assert.equal(res.toString(), "0x03FFF97BD5755EEEA420453A14355235D382F6472F8568A18B2F057A1460297556".toLowerCase())
     })
 
@@ -157,6 +157,50 @@ contract("VRF", accounts => {
 
       const result = await vrf.verify.call(publicKey, proof, hPoint)
       assert.ok(result)
+    })
+
+    it("should provide a valid hash point on 1st iteration", async () => {
+      const publicKeyX = web3.utils.hexToBytes("0x2c8c31fc9f990c6b55e3865a184a4ce50e09481f2eaeb3e60ec1cea13a6ae645")
+      const publicKeyY = web3.utils.hexToBytes("0x64b95e4fdb6948c0386e189b006a29f686769b011704275e4459822dc3328085")
+      const publicKey = [publicKeyX, publicKeyY]
+      const message = web3.utils.hexToBytes("0x73616d706c65")
+
+      // the H point for the previous message
+      const expectedHashX = "0x397a915943d5c8192c79fea8a4b6d45be41e0a9ae2722c1e192a009cb9f38ce3"
+      const expectedHashY = "0x9fb51558a73827c2571280f89adb0fe5626497ef54061836d2c83bb101d88ac"
+      const result = await vrf.hashToTryAndIncrement.call(publicKey, message)
+      assert.equal(web3.utils.numberToHex(result[0]), expectedHashX)
+      assert.equal(web3.utils.numberToHex(result[1]), expectedHashY)
+    })
+
+    it("should verify proof with message", async () => {
+      const pi = "0x031f4dbca087a1972d04a07a779b7df1caa99e0f5db2aa21f3aecc4f9e10e85d0814faa89697b482daa377fb6b4a8b0191a65d34a6d90a8a2461e5db9205d4cf0bb4b2c31b5ef6997a585a9f1a72517b6f"
+      const publicKeyX = web3.utils.hexToBytes("0x2c8c31fc9f990c6b55e3865a184a4ce50e09481f2eaeb3e60ec1cea13a6ae645")
+      const publicKeyY = web3.utils.hexToBytes("0x64b95e4fdb6948c0386e189b006a29f686769b011704275e4459822dc3328085")
+      const publicKey = [publicKeyX, publicKeyY]
+      const proof = await vrf.decode_proof.call(web3.utils.hexToBytes(pi))
+      const message = web3.utils.hexToBytes("0x73616d706c65")
+
+      const result = await vrf.verify_with_message.call(publicKey, proof, message)
+      assert.ok(result)
+    })
+
+    it("should provide a valid hash point after 6 iterations", async () => {
+      const publicKeyX = web3.utils.hexToBytes("0x2c8c31fc9f990c6b55e3865a184a4ce50e09481f2eaeb3e60ec1cea13a6ae645")
+      const publicKeyY = web3.utils.hexToBytes("0x64b95e4fdb6948c0386e189b006a29f686769b011704275e4459822dc3328085")
+      const publicKey = [publicKeyX, publicKeyY]
+      const message = web3.utils.hexToBytes("0x73616d706c77")
+
+      // the H point for the previous message (after six iterations)
+      // prefix: 04
+      // coordX: e906a3b4379ddbff598994b2ff026766fb66424710776099b85111f23f8eebcc
+      // coordY: 7638965bf85f5f2b6641324389ef2ffb99576ba72ec19d8411a5ea1dd251b112
+
+      const expectedHashX = "0xe906a3b4379ddbff598994b2ff026766fb66424710776099b85111f23f8eebcc"
+      const expectedHashY = "0x7638965bf85f5f2b6641324389ef2ffb99576ba72ec19d8411a5ea1dd251b112"
+      const result = await vrf.hashToTryAndIncrement.call(publicKey, message)
+      assert.equal(web3.utils.numberToHex(result[0]), expectedHashX)
+      assert.equal(web3.utils.numberToHex(result[1]), expectedHashY)
     })
   })
 })
