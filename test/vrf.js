@@ -93,7 +93,7 @@ contract("VRF", accounts => {
       const hPoint = await vrf.decode_point.call(web3.utils.hexToBytes(hashPoint))
 
       const result = await vrf.verify.call(publicKey, proof, hPoint)
-      assert.ok(result)
+      assert.equal(result, true)
     })
 
     it("should fail in VRF verify with wrong hash point (no decode proof)", async () => {
@@ -156,7 +156,7 @@ contract("VRF", accounts => {
       const hPoint = await vrf.decode_point.call(web3.utils.hexToBytes(hashPoint))
 
       const result = await vrf.verify.call(publicKey, proof, hPoint)
-      assert.ok(result)
+      assert.equal(result, true)
     })
 
     it("should provide a valid hash point on 1st iteration", async () => {
@@ -182,7 +182,7 @@ contract("VRF", accounts => {
       const message = web3.utils.hexToBytes("0x73616d706c65")
 
       const result = await vrf.verify_with_message.call(publicKey, proof, message)
-      assert.ok(result)
+      assert.equal(result, true)
     })
 
     it("should provide a valid hash point after 6 iterations", async () => {
