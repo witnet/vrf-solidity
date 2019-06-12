@@ -1,5 +1,10 @@
 # Step-by-step VRF
 
+**Proof pi**
+gamma (ec point):  03 1f4dbca087a1972d04a07a779b7df1caa99e0f5db2aa21f3aecc4f9e10e85d08
+c (16 bytes):      14faa89697b482daa377fb6b4a8b0191
+s (32 bytes):      a65d34a6d90a8a2461e5db9205d4cf0bb4b2c31b5ef6997a585a9f1a72517b6f
+
 **Public key**
 prefix: 04 (uncompressed)
 coordX: 2c8c31fc9f990c6b55e3865a184a4ce50e09481f2eaeb3e60ec1cea13a6ae645
