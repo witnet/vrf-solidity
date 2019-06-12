@@ -25,7 +25,7 @@ contract VRF is EllipticCurve {
   //   return gamma_x;
   // }
 
-  function verify(uint256[2] memory publicKey, uint256[4] memory proof, bytes memory message, uint256[2] memory h_point) public pure returns (bool) {
+  function verify(uint256[2] memory publicKey, uint256[4] memory proof, uint256[2] memory h_point) public pure returns (bool) {
 
     // // uint256 gamma_x = proof[0];
     // // uint256 gamma_y = proof[1]; // no sirve!
@@ -80,7 +80,7 @@ contract VRF is EllipticCurve {
   function decompress(uint8 yBit, uint256 x) public pure returns (uint256[2] memory P) {
     uint256 p = pp;
     uint256 y2 = addmod(mulmod(x, mulmod(x, x, p), p), 7, p);
-    uint256 y_ = expmod(y2, (p + 1) / 4, p);
+    uint256 y_ = _expMod(y2, (p + 1) / 4, p);
     // uint256 cmp = yBit ^ y_ & 1;
     P[0] = x;
     P[1] = (y_ + yBit) % 2 == 0 ? y_ : p - y_;

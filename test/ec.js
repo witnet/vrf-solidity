@@ -16,7 +16,7 @@ contract("EC", accounts => {
       var z1 = new BN(3)
       var x2 = new BN(4)
       var z2 = new BN(5)
-      const res = await ec._jAdd(x1, z1, x2, z2)
+      const res = await ec._jAdd.call(x1, z1, x2, z2)
       var x3 = res[0]
       var z3 = res[1]
       assert.equal(x3.toString(10), "22")
@@ -27,7 +27,7 @@ contract("EC", accounts => {
       var z1 = new BN(1)
       var x2 = new BN(2)
       var z2 = new BN(1)
-      const res = await ec._jAdd(x1, z1, x2, z2)
+      const res = await ec._jAdd.call(x1, z1, x2, z2)
       var x3 = res[0]
       var z3 = res[1]
       assert.equal(x3.toString(10), "1")
@@ -36,16 +36,11 @@ contract("EC", accounts => {
     // To be continued...
     it("Should Invert an inverted number and be the same", async () => {
       const y1 = web3.utils.toBN("0x9d42bf0c35d765c2242712205e8f8b1ea588f470a6980b21bc9efb4ab33ae246")
-      const inverted = await ec._inverse(y1)
-      const newY1 = await ec._inverse(inverted)
+      const inverted = await ec._invMod(y1)
+      const newY1 = await ec._invMod(inverted)
       assert.equal(newY1.toString(), y1.toString())
     })
-    // it("Should Invert an inverted number and be the same (2)", async () => {
-    //   const y1 = web3.utils.toBN("0x9d42bf0c35d765c2242712205e8f8b1ea588f470a6980b21bc9efb4ab33ae246")
-    //   const inverted = await ec.inverseMod(y1)
-    //   const newY1 = await ec.inverseMod(inverted)
-    //   assert.equal(newY1.toString(), y1.toString())
-    // })
+
     it("Should Add two big numbers", async () => {
       const x1 = web3.utils.toBN("0x3596f1f475c8999ffe35ccf7cebee7373ee40513ad467e3fc38600aa06d41bcf")
       const z1 = web3.utils.toBN("0x825a3eb4f09a55637391c950ba5e25c1ea658a15f234c14ebec79e5c68bd4133")
@@ -62,7 +57,7 @@ contract("EC", accounts => {
     it("Should Invert an ec point", async () => {
       const x = web3.utils.toBN("0x1c2a90c4c30f60e878d1fe317acf4f2e059300e3deaa1c949628096ecaf993b2")
       const y = web3.utils.toBN("0x9d42bf0c35d765c2242712205e8f8b1ea588f470a6980b21bc9efb4ab33ae246")
-      const invertedPoint = await ec._inv(x, y)
+      const invertedPoint = await ec.inv(x, y)
 
       const expectedY = web3.utils.toBN("0x62bd40f3ca289a3ddbd8eddfa17074e15a770b8f5967f4de436104b44cc519e9")
       assert.equal(invertedPoint[0].toString(), x.toString())

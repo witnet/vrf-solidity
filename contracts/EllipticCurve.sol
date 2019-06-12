@@ -4,37 +4,36 @@ contract EllipticCurve {
 
   uint256 constant gx = 0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798;
   uint256 constant gy = 0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8;
-  // n is known as P
-  uint256 constant n = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F;
+  uint256 constant pp = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F;
   uint256 constant a = 0;
   uint256 constant b = 7;
 
   function _jAdd(uint256 x1, uint256 z1, uint256 x2, uint256 z2) public pure returns (uint256 x3, uint256 z3) {
-    (x3, z3) = (addmod(mulmod(z2, x1, n), mulmod(x2, z1, n), n), mulmod(z1, z2, n)
+    (x3, z3) = (addmod(mulmod(z2, x1, pp), mulmod(x2, z1, pp), pp), mulmod(z1, z2, pp)
     );
   }
 
   function _jSub(uint256 x1, uint256 z1, uint256 x2, uint256 z2) public pure returns (uint256 x3, uint256 z3) {
-    (x3, z3) = (addmod(mulmod(z2, x1, n), mulmod(n - x2, z1, n), n), mulmod(z1, z2, n));
+    (x3, z3) = (addmod(mulmod(z2, x1, pp), mulmod(pp - x2, z1, pp), pp), mulmod(z1, z2, pp));
   }
 
   function _jMul(uint256 x1, uint256 z1, uint256 x2, uint256 z2) public pure returns (uint256 x3, uint256 z3) {
-    (x3, z3) = (mulmod(x1, x2, n), mulmod(z1, z2, n));
+    (x3, z3) = (mulmod(x1, x2, pp), mulmod(z1, z2, pp));
   }
 
   function _jDiv(uint256 x1, uint256 z1, uint256 x2, uint256 z2) public pure returns (uint256 x3, uint256 z3) {
-    (x3, z3) = (mulmod(x1, z2, n), mulmod(z1, x2, n));
+    (x3, z3) = (mulmod(x1, z2, pp), mulmod(z1, x2, pp));
   }
 
-  function _inverse(uint256 _a) public pure returns (uint256 invA) {
+  function _invMod(uint256 _a) public pure returns (uint256 invA) {
     uint256 t = 0;
     uint256 newT = 1;
-    uint256 r = n;
+    uint256 r = pp;
     uint256 newR = _a;
     uint256 q;
     while (newR != 0) {
       q = r / newR;
-      (t, newT) = (newT, addmod(t, (n - mulmod(q, newT, n)), n));
+      (t, newT) = (newT, addmod(t, (pp - mulmod(q, newT, pp)), pp));
       (r, newR) = (newR, r - q * newR);
     }
     return t;
@@ -77,9 +76,9 @@ contract EllipticCurve {
     (y3, db) = _jSub(y3, db, y1, z1);
 
     if (da != db) {
-      x3 = mulmod(x3, db, n);
-      y3 = mulmod(y3, da, n);
-      z3 = mulmod(da, db, n);
+      x3 = mulmod(x3, db, pp);
+      y3 = mulmod(y3, da, pp);
+      z3 = mulmod(da, db, pp);
     } else {
       z3 = da;
     }
@@ -118,19 +117,18 @@ contract EllipticCurve {
     uint256 y;
     uint256 z;
     (x, y, z) = _ecMul(privKey, gx, gy, 1);
-    z = _inverse(z);
-    qx = mulmod(x, z, n);
-    qy = mulmod(y, z, n);
+    z = _invMod(z);
+    qx = mulmod(x, z, pp);
+    qy = mulmod(y, z, pp);
   }
 
   function deriveKey(uint256 privKey, uint256 pubX, uint256 pubY) public pure returns (uint256 qx, uint256 qy) {
     (uint256 x, uint256 y, uint256 z) = _ecMul(privKey, pubX, pubY, 1);
-    z = _inverse(z);
-    qx = mulmod(x, z, n);
-    qy = mulmod(y, z, n);
+    z = _invMod(z);
+    qx = mulmod(x, z, pp);
+    qy = mulmod(y, z, pp);
   }
 
-  //TODO: review code
   /// @dev Modular exponentiation, b^e % m
   /// Basically the same as can be found here:
   /// https://github.com/ethereum/serpent/blob/develop/examples/ecc/modexp.se
@@ -138,7 +136,7 @@ contract EllipticCurve {
   /// @param e The exponent.
   /// @param m The modulus.
   /// @return x such that x = b**e (mod m)
-  function expmod(uint base, uint e, uint m) internal pure returns (uint r) {
+  function _expMod(uint base, uint e, uint m) internal pure returns (uint r) {
     if (base == 0)
       return 0;
     if (e == 0)
@@ -158,52 +156,24 @@ contract EllipticCurve {
     }
   }
 
-  // function inverseMod(uint u) public pure returns (uint)
-  // {
-  //   if (u == 0 || u == n || n == 0)
-  //       return 0;
-  //   if (u > n)
-  //       u = u % n;
-
-  //   int t1;
-  //   int t2 = 1;
-  //   uint r1 = n;
-  //   uint r2 = u;
-  //   uint q;
-
-  //   while (r2 != 0) {
-  //     q = r1 / r2;
-  //     (t1, t2, r1, r2) = (t2, t1 - int(q) * t2, r2, r1 - q * r2);
-  //   }
-
-  //   if (t1 < 0)
-  //     return (n - uint(-t1));
-
-  //   return uint(t1);
-  // }
-
-  // TODO: review why not to do a modulo
-  function _inv(uint256 x1, uint256 y1) public pure returns (uint256 x3, uint256 y3) {
-    (x3, y3) = (x1, (n - y1) % n);
+  function inv(uint256 x1, uint256 y1) public pure returns (uint256 x3, uint256 y3) {
+    (x3, y3) = (x1, (pp - y1) % pp);
   }
 
-  function add(uint256 pubX1, uint256 pubY1, uint256 pubX2, uint256 pubY2) public pure
+  function add(uint256 x1, uint256 y1, uint256 x2, uint256 y2) public pure
     returns(uint256 qx, uint256 qy)
   {
-    uint256 x;
-    uint256 y;
-    uint256 z;
-    (x,y,z) = _ecAdd(pubX1, pubY1, 1, pubX2, pubY2, 1);
-    z = _inverse(z);
-    qx = mulmod(x, z, n);
-    qy = mulmod(y, z, n);
+    (uint256 x, uint256 y, uint256 z) = _ecAdd(x1, y1, 1, x2, y2, 1);
+    z = _invMod(z);
+    qx = mulmod(x, z, pp);
+    qy = mulmod(y, z, pp);
   }
 
-  function sub(uint256 pubX1, uint256 pubY1, uint256 pubX2, uint256 pubY2) public pure
+  function sub(uint256 x1, uint256 y1, uint256 x2, uint256 y2) public pure
     returns(uint256 qx, uint256 qy)
   {
-    (uint256 x2, uint256 y2) = _inv(pubX2, pubY2);
-    (qx, qy) = add(pubX1, pubY1, x2, y2);
+    (uint256 x2, uint256 y2) = inv(x2, y2);
+    (qx, qy) = add(x1, y1, x2, y2);
   }
 
 }
