@@ -164,7 +164,6 @@ contract VRF is EllipticCurve {
     // Prepare bytes
     uint v_length = 2 + 33 + message.length + 1;
     bytes memory c = new bytes(v_length);
-    uint8 ctr = 0;
 
     // Step 1: public key to bytes
     bytes memory pkBytes = encode_point(public_key[0], public_key[1]);
@@ -182,21 +181,28 @@ contract VRF is EllipticCurve {
     for (uint i = 0; i < message.length; i++) {
       c[35+i] = message[i];
     }
-    // Counter
-    c[v_length-1] = byte(ctr);
 
     // Step 3: find a valid EC point
     // loop over counter ctr starting at 0x00 and do hash
-    bytes32 sha = sha256(c);
+    for (uint8 ctr = 0; ctr < 256; ctr++) {
+      // Counter
+      c[v_length-1] = byte(ctr);
+ 
+      // Do digest
+      bytes32 sha = sha256(c);
 
-    // Step 4: arbitraty string to point
-    uint h_x = uint256(sha);
-    uint h_y = derive_y(2, h_x);
+      // Step 4: arbitraty string to point
+      uint h_x = uint256(sha);
+      uint h_y = derive_y(2, h_x);
 
-    // Step 5: calculate H
-    // If H is not "INVALID" and cofactor > 1, set H = cofactor * H
+      if (isOnCurve(h_x, h_y)) {
+        // Step 5: calculate H (cofactor is 1 on secp256k1)
+        // If H is not "INVALID" and cofactor > 1, set H = cofactor * H
+        return (h_x, h_y);
+      }
+    }
 
-    return (h_x, h_y);
+    revert("No hash to point was found");
   }
 
 }
