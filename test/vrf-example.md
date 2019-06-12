@@ -1,0 +1,52 @@
+# Step-by-step VRF
+
+**Public key**
+prefix: 04 (uncompressed)
+coordX: 2c8c31fc9f990c6b55e3865a184a4ce50e09481f2eaeb3e60ec1cea13a6ae645
+coordY: 64b95e4fdb6948c0386e189b006a29f686769b011704275e4459822dc3328085
+
+**c (16 bytes)**
+bn: 14FAA89697B482DAA377FB6B4A8B0191
+
+**s (32 bytes)**
+bn: A65D34A6D90A8A2461E5DB9205D4CF0BB4B2C31B5EF6997A585A9F1A72517B6F
+
+**H point**
+prefix: 04 (uncompressed)
+coordX: 397a915943d5c8192c79fea8a4b6d45be41e0a9ae2722c1e192a009cb9f38ce3
+coordY: 09fb51558a73827c2571280f89adb0fe5626497ef54061836d2c83bb101d88ac
+
+**u point**
+prefix: 04 (uncompressed)
+coordX: c71cd5625cd61d65bd9f6b84292eae013fc50ea99a9a090c730c3a4c24c32cc7
+coordY: ebe10326af2accc2f3a4eb8658d90e572061aa766d04e31f102b26e7065c9f26
+
+**sH**
+prefix: 04 (uncompressed)
+coord X: 0x3596f1f475c8999ffe35ccf7cebee7373ee40513ad467e3fc38600aa06d41bcf
+coord Y: 0x825a3eb4f09a55637391c950ba5e25c1ea658a15f234c14ebec79e5c68bd4133
+
+**cGamma**
+coordX: 0x1c2a90c4c30f60e878d1fe317acf4f2e059300e3deaa1c949628096ecaf993b2
+coordY: 0x9d42bf0c35d765c2242712205e8f8b1ea588f470a6980b21bc9efb4ab33ae246
+
+**CGamma inverted**
+coordX: 0x1c2a90c4c30f60e878d1fe317acf4f2e059300e3deaa1c949628096ecaf993b2,
+coordY: 0x62bd40f3ca289a3ddbd8eddfa17074e15a770b8f5967f4de436104b44cc519e9
+
+**v point**
+prefix: 04 (uncompressed)
+coordX: 0x957f0c13905d357d9e1ebaf32742b410d423fcf2410229d4e8093f3360d07b2c
+coordY: 0x9a0d14288d3906e052bdcf12c2a469da3e7449068b3e119300b792da964ed977
+
+**Hash_point: to be hashed**
+ciphersuite: fe
+prefix: 02
+data: 02397a915943d5c8192c79fea8a4b6d45be41e0a9ae2722c1e192a009cb9f38c
+      e3031f4dbca087a1972d04a07a779b7df1caa99e0f5db2aa21f3aecc4f9e10e8
+      5d0802c71cd5625cd61d65bd9f6b84292eae013fc50ea99a9a090c730c3a4c24
+      c32cc703957f0c13905d357d9e1ebaf32742b410d423fcf2410229d4e8093f33
+      60d07b2c
+
+**derived_c (16 bytes)**
+bn: 14FAA89697B482DAA377FB6B4A8B0191
