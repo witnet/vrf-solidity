@@ -4,43 +4,72 @@ import "./EllipticCurve.sol";
 
 contract VRF is EllipticCurve {
 
-  function add(uint256 x1, uint256 z1, uint256 x2, uint256 z2) public pure returns (uint256 x3, uint256 z3)
-  {
-    (x3, z3) = _jAdd(x1, z1, x2, z2);
-  }
+  uint256 constant gx = 0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798;
+  uint256 constant gy = 0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8;
+  uint256 constant pp = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F;
 
-  function verify(uint256[2] memory publicKey, uint256[4] memory proof, bytes memory message, uint256[2] memory h_point) public pure returns (bool result) {
+  function verify(uint256[2] memory publicKey, uint256[4] memory proof, bytes memory message, uint256[2] memory h_point) public pure returns (bytes16) {
 
-    // uint256 gamma_x = proof[0];
-    // uint256 gamma_y = proof[1]; // no sirve!
-    // uint256 c = proof[2];
-    // uint256 s = proof[3];
-    // uint256 h_x = h_point[0];
-    // uint256 h_y = h_point[1];
+    // // uint256 gamma_x = proof[0];
+    // // uint256 gamma_y = proof[1]; // no sirve!
+    // // uint256 c = proof[2];
+    // // uint256 s = proof[3];
+    // // uint256 h_x = h_point[0];
+    // // uint256 h_y = h_point[1];
 
-    // Step 2: Hash to try and increment
-    // Output: hashed value, a finite EC point in G
-    // (uint256 h_x, uint256 h_y) = _hashToTryAndIncrement(gamma_x, gamma_y, message);
+    // // Step 2: Hash to try and increment
+    // // Output: hashed value, a finite EC point in G
+    // // (uint256 h_x, uint256 h_y) = _hashToTryAndIncrement(gamma_x, gamma_y, message);
 
     // // Step 3: U = s*B - c*Y (where B is the generator)
     // (uint256 sB_x, uint256 sB_y) = derivePublicKey(proof[3]);
     // (uint256 cY_x, uint256 cY_y) = deriveKey(proof[2], publicKey[0], publicKey[1]);
     // (uint256 u_x, uint256 u_y) = _jSub(sB_x, sB_y, cY_x, cY_y);
+    (uint256 u_x, uint256 u_y) = sub2Muls(proof[3], gx, gy, proof[2], publicKey[0], publicKey[1]);
 
     // // Step 4: V = s*H - c*Gamma
     // (uint256 sH_x, uint256 sH_y) = deriveKey(proof[3], h_point[0], h_point[1]);
     // (uint256 cG_x, uint256 cG_y) = deriveKey(proof[2], proof[0], proof[1]);
+
+    // uint256 mcG_y = _inverse(cG_y);
     // (uint256 v_x, uint256 v_y) = _jSub(sH_x, sH_y, cG_x, cG_y);
+    (uint256 v_x, uint256 v_y) = sub2Muls(proof[3], h_point[0], h_point[1], proof[2], proof[0], proof[1]);
+
 
     // Step 5: derived c from hash points(...)
-    // let derived_c = self.hash_points(&[&h_point, &gamma_point, &u_point, &v_point])?;
+    //let derived_c = self.hash_points(&[&h_point, &gamma_point, &u_point, &v_point])?;
+    bytes16 derived_c = hash_points(h_point[0], h_point[1], proof[0], proof[1], u_x, u_y, v_x, v_y);
 
-    // Step 6: Check validity c == c'
+    // // Step 6: Check validity c == c'
+    // uint256 dc;
+    // assembly {
+    //     dc := mload(add(derived_c, 0x20))
+    // }
 
-    return true;
+    return derived_c;
   }
 
-  function hash_points (uint256 h_x, uint256 h_y, uint256 gamma_x, uint256 gamma_y, uint256 u_x, uint256 u_y, uint256 v_x, uint256 v_y)
+  // result = s1*A - s2*B
+  function sub2Muls(uint256 s1, uint256 a1, uint256 a2, uint256 s2, uint256 b1, uint256 b2) internal pure returns (uint256, uint256) {
+    (uint256 m1, uint256 m2) = deriveKey(s1, a1, a2);
+    (uint256 n1, uint256 n2) = deriveKey(s2, b1, b2);
+    (uint256 r1, uint256 r2) = sub(m1, m2, n1, n2);
+
+    return (r1, r2);
+  }
+
+  //TODO: to review
+  /// @dev See Curve.decompress
+  function decompress(uint8 yBit, uint256 x) public pure returns (uint256[2] memory P) {
+    uint256 p = pp;
+    uint256 y2 = addmod(mulmod(x, mulmod(x, x, p), p), 7, p);
+    uint256 y_ = expmod(y2, (p + 1) / 4, p);
+    // uint256 cmp = yBit ^ y_ & 1;
+    P[0] = x;
+    P[1] = (y_ + yBit) % 2 == 0 ? y_ : p - y_;
+  }
+
+  function hash_points(uint256 h_x, uint256 h_y, uint256 gamma_x, uint256 gamma_y, uint256 u_x, uint256 u_y, uint256 v_x, uint256 v_y)
   public pure returns (bytes16) {
     bytes memory c = new bytes(133);
     // Prefix 0x02
