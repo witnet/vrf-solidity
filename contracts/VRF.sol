@@ -8,7 +8,24 @@ contract VRF is EllipticCurve {
   uint256 constant gy = 0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8;
   uint256 constant pp = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F;
 
-  function verify(uint256[2] memory publicKey, uint256[4] memory proof, bytes memory message, uint256[2] memory h_point) public pure returns (bytes16) {
+  // function decode_proof(bytes memory proof) public pure returns (uint256) {
+  //   uint8 gamma_sign;
+  //   uint256 gamma_x;
+  //   // uint256 gamma_y; // no sirve!
+  //   uint256 c;
+  //   // uint256 s;
+
+  //   assembly {
+  //     gamma_sign := mload(add(proof, 1))
+	//     gamma_x := mload(add(proof, 33))
+  //     c := mload(add(proof, 78))
+  //     // s := mload(add(proof, 110))
+  //   }
+
+  //   return gamma_x;
+  // }
+
+  function verify(uint256[2] memory publicKey, uint256[4] memory proof, bytes memory message, uint256[2] memory h_point) public pure returns (bool) {
 
     // // uint256 gamma_x = proof[0];
     // // uint256 gamma_y = proof[1]; // no sirve!
@@ -46,7 +63,7 @@ contract VRF is EllipticCurve {
     //     dc := mload(add(derived_c, 0x20))
     // }
 
-    return derived_c;
+    return uint128(derived_c) == proof[2];
   }
 
   // result = s1*A - s2*B

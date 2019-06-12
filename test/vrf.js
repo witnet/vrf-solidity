@@ -141,11 +141,11 @@ contract("VRF", accounts => {
 
       const result = await vrf.verify.call(publicKey, proof, message, hPoint)
 
-      console.log("result from verify: ", web3.utils.numberToHex(result))
+      assert.ok(result)
 
-      const ghx = web3.utils.hexToBytes("0x2c8c31fc9f990c6b55e3865a184a4ce50e09481f2eaeb3e60ec1cea13a6ae645")
-      const gamma2 = await vrf.decompress.call(2, ghx)
-      const gamma3 = await vrf.decompress.call(3, ghx)
+      // const ghx = web3.utils.hexToBytes("0x2c8c31fc9f990c6b55e3865a184a4ce50e09481f2eaeb3e60ec1cea13a6ae645")
+      // const gamma2 = await vrf.decompress.call(2, ghx)
+      // const gamma3 = await vrf.decompress.call(3, ghx)
 
       // console.log("gamme 2: ", web3.utils.numberToHex(gamma2[1]))
       // console.log("gamma 3: ", web3.utils.numberToHex(gamma3[1]))
@@ -153,6 +153,40 @@ contract("VRF", accounts => {
       // console.log("derived  c", web3.utils.numberToHex(derived_c))
       // console.log("original c", "0x".concat(pi.slice(66, 2 + 64 + 32)))
       // console.log("original s", "0x".concat(pi.slice(2 + 64 + 32, 2 + 64 + 32 + 64)))
+    })
+
+    it("should verify a valid VRF proof", async () => {
+      const publicKeyX = web3.utils.hexToBytes("0x2c8c31fc9f990c6b55e3865a184a4ce50e09481f2eaeb3e60ec1cea13a6ae645")
+      const publicKeyY = web3.utils.hexToBytes("0x64b95e4fdb6948c0386e189b006a29f686769b011704275e4459822dc3328085")
+      const publicKey = [publicKeyX, publicKeyY]
+
+      const pi = "031f4dbca087a1972d04a07a779b7df1caa99e0f5db2aa21f3aecc4f9e10e85d0814faa89697b482daa377fb6b4a8b0191a65d34a6d90a8a2461e5db9205d4cf0bb4b2c31b5ef6997a585a9f1a72517b6f"
+      let proof = []
+
+      const gammaYSign = pi.slice(0, 2)
+      const gammaX = web3.utils.hexToBytes("0x".concat(pi.slice(2, 2 + 64)))
+      const gamma = await vrf.decompress.call(gammaYSign, gammaX)
+      proof[0] = gamma[0]
+      proof[1] = gamma[1]
+
+      const c = web3.utils.hexToBytes("0x".concat(pi.slice(66, 2 + 64 + 32)))
+      const s = web3.utils.hexToBytes("0x".concat(pi.slice(2 + 64 + 32, 2 + 64 + 32 + 64)))
+      proof[2] = c
+      proof[3] = s
+
+      // ASCII: sample
+      const message = web3.utils.hexToBytes("0x73616d706c65")
+
+      const hashPoint = "02397a915943d5c8192c79fea8a4b6d45be41e0a9ae2722c1e192a009cb9f38ce3"
+      // hashPointY := 0x9fb51558a73827c2571280f89adb0fe5626497ef54061836d2c83bb101d88ac
+      const hashSign = hashPoint.slice(0, 2)
+      const hashX = web3.utils.hexToBytes("0x".concat(hashPoint.slice(2, 66)))
+      const hPoint = await vrf.decompress.call(hashSign, hashX)
+      // console.log("hashPointY: ", web3.utils.numberToHex(hPoint[1]))
+
+      const result = await vrf.verify.call(publicKey, proof, message, hPoint)
+
+      assert.equal(result, false)
     })
   })
 })
