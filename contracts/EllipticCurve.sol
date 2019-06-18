@@ -172,7 +172,7 @@ contract EllipticCurve {
   function ecSub(uint256 x1, uint256 y1, uint256 x2, uint256 y2) public pure
     returns(uint256 qx, uint256 qy)
   {
-    (uint256 x2, uint256 y2) = ecInv(x2, y2);
+    (x2, y2) = ecInv(x2, y2);
     (qx, qy) = ecAdd(x1, y1, x2, y2);
   }
 
