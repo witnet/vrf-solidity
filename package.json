@@ -5,6 +5,7 @@
   "main": "",
   "scripts": {
     "test": "truffle test",
+    "test:local": "truffle test --network local",
     "console": "truffle console",
     "postinstall": "npm run compile-contracts",
     "compile-contracts": "truffle compile --all",
