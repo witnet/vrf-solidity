@@ -10,13 +10,6 @@ contract("VRF", accounts => {
       vrf = await VRF.deployed()
     })
 
-    it("should merge prefix and bytes", async () => {
-      const prefix = web3.utils.hexToBytes("0x02")
-      let data = web3.utils.hexToBytes("0xffffffff")
-      const res = await vrf.mergeBytes(prefix, data)
-      assert.equal(res.toString(), "0x02ffffffff")
-    })
-
     it("should encode an even point using the compressed binary format", async () => {
       const pointX = web3.utils.hexToBytes("0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798")
       const pointY = web3.utils.hexToBytes("0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8")

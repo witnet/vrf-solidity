@@ -204,30 +204,7 @@ contract VRF is Secp256k1 {
   /// @return The point coordinates as bytes
   function encodePoint(uint256 _x, uint256 _y) public pure returns (bytes memory) {
     uint8 prefix = uint8(2 + (_y % 2));
-    bytes memory pb1 = new bytes(1);
-    pb1[0] = byte(prefix);
-    bytes memory pb2 = new bytes(32);
-    assembly {
-      mstore(add(pb2, 32), _x)
-    }
 
-    return mergeBytes(pb1, pb2);
-  }
-
-  /// @dev Merge two bytes structures into one
-  /// @param _a The bytes `a`
-  /// @param _b The bytes `b`
-  /// @return The merged bytes
-  function mergeBytes(bytes memory _a, bytes memory _b) public pure returns (bytes memory) {
-    uint totallen = _a.length + _b.length;
-    bytes memory c = new bytes(totallen);
-    for (uint i = 0; i < _a.length; i++) {
-      c[i] = _a[i];
-    }
-    for (uint j = 0; j < _b.length; j++) {
-      c[_a.length+j] = _b[j];
-    }
-
-    return c;
+    return abi.encodePacked(prefix, _x);
   }
 }
