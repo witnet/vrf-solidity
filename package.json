@@ -28,6 +28,7 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "elliptic-curve-solidity": "^0.1.0",
     "truffle-hdwallet-provider": "^1.0.7"
   },
   "devDependencies": {

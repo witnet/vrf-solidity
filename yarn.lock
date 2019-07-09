@@ -1162,6 +1162,12 @@ ee-first@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/ee-first/-/ee-first-1.1.1.tgz#590c61156b0ae2f4f0255732a158b266bc56b21d"
 
+elliptic-curve-solidity@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/elliptic-curve-solidity/-/elliptic-curve-solidity-0.1.0.tgz#7a1744a2b5e33f47b5220fa3d98a29055fc67c67"
+  dependencies:
+    truffle-hdwallet-provider "^1.0.11"
+
 elliptic@6.3.3:
   version "6.3.3"
   resolved "https://registry.yarnpkg.com/elliptic/-/elliptic-6.3.3.tgz#5482d9646d54bcb89fd7d994fc9e2e9568876e3f"
@@ -4646,7 +4652,7 @@ truffle-assertions@^0.9.1:
     assertion-error "^1.1.0"
     lodash.isequal "^4.5.0"
 
-truffle-hdwallet-provider@^1.0.7:
+truffle-hdwallet-provider@^1.0.11, truffle-hdwallet-provider@^1.0.7:
   version "1.0.13"
   resolved "https://registry.yarnpkg.com/truffle-hdwallet-provider/-/truffle-hdwallet-provider-1.0.13.tgz#be0d9338cc60da7d6419a5fc0f02f0d42e7e2ef9"
   dependencies:

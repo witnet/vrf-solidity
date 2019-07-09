@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-import "./EllipticCurve.sol";
+import "elliptic-curve-solidity/contracts/EllipticCurve.sol";
 
 /**
  * @title Secp256k1 Elliptic Curve
