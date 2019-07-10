@@ -29,8 +29,8 @@
     "@types/node" "*"
 
 "@types/node@*":
-  version "12.6.1"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.6.1.tgz#d5544f6de0aae03eefbb63d5120f6c8be0691946"
+  version "12.6.2"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.6.2.tgz#a5ccec6abb6060d5f20d256fb03ed743e9774999"
 
 "@types/node@^10.0.3", "@types/node@^10.3.2":
   version "10.14.12"
@@ -1485,8 +1485,8 @@ ethers@4.0.0-beta.1:
     xmlhttprequest "1.8.0"
 
 ethers@^4.0.28:
-  version "4.0.32"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.32.tgz#46378864cb3bf29b57c2effd17508b560743abf6"
+  version "4.0.33"
+  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.33.tgz#f7b88d2419d731a39aefc37843a3f293e396f918"
   dependencies:
     "@types/node" "^10.3.2"
     aes-js "3.0.0"
@@ -1944,8 +1944,8 @@ functional-red-black-tree@^1.0.1:
   resolved "https://registry.yarnpkg.com/functional-red-black-tree/-/functional-red-black-tree-1.0.1.tgz#1b0ab3bd553b2a0d6399d29c0e3ea0b252078327"
 
 ganache-cli@^6.4.4:
-  version "6.4.4"
-  resolved "https://registry.yarnpkg.com/ganache-cli/-/ganache-cli-6.4.4.tgz#9772bba8585d6e2049bd85adf24369c1cc165170"
+  version "6.4.5"
+  resolved "https://registry.yarnpkg.com/ganache-cli/-/ganache-cli-6.4.5.tgz#6aa24c985f73f9b27ceef8b9bcc1c8dabf3018f0"
   dependencies:
     bn.js "4.11.8"
     source-map-support "0.5.9"
@@ -2848,8 +2848,8 @@ lodash.isequal@^4.5.0:
   resolved "https://registry.yarnpkg.com/lodash.isequal/-/lodash.isequal-4.5.0.tgz#415c4478f2bcc30120c22ce10ed3226f7d3e18e0"
 
 lodash@^4.14.2, lodash@^4.17.11:
-  version "4.17.11"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
+  version "4.17.14"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.14.tgz#9ce487ae66c96254fe20b599f21b6816028078ba"
 
 lowercase-keys@^1.0.0:
   version "1.0.1"

@@ -18,5 +18,19 @@ contract("VRFTestHelper - internals", accounts => {
         assert.equal(web3.utils.numberToHex(result[1]), test.hashPoint.y)
       })
     }
+    for (let [index, test] of testdata.hashPoints.valid.entries()) {
+      it(`Points to hash (digest from EC points) (${index + 1})`, async () => {
+        const res = await helper._hashPoints.call(
+          web3.utils.hexToBytes(test.hPoint.x),
+          web3.utils.hexToBytes(test.hPoint.y),
+          web3.utils.hexToBytes(test.gamma.x),
+          web3.utils.hexToBytes(test.gamma.y),
+          web3.utils.hexToBytes(test.uPoint.x),
+          web3.utils.hexToBytes(test.uPoint.y),
+          web3.utils.hexToBytes(test.vPoint.x),
+          web3.utils.hexToBytes(test.vPoint.y))
+        assert.equal(res.toString(), test.hash)
+      })
+    }
   })
 })

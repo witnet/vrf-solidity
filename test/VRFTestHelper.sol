@@ -55,7 +55,29 @@ contract VRFTestHelper is VRF {
     return computeFastVerifyParams(_publicKey, _proof, _message);
   }
 
-  function _hashToTryAndIncrement(uint256[2] memory _publicKey, bytes memory _message) public returns (uint, uint) {
+  function _hashToTryAndIncrement(uint256[2] memory _publicKey, bytes memory _message) public pure returns (uint, uint) {
     return hashToTryAndIncrement(_publicKey, _message);
+  }
+
+  function _hashPoints(
+    uint256 _hPointX,
+    uint256 _hPointY,
+    uint256 _gammaX,
+    uint256 _gammaY,
+    uint256 _uPointX,
+    uint256 _uPointY,
+    uint256 _vPointX,
+    uint256 _vPointY)
+  public pure returns (bytes16)
+  {
+    return hashPoints(
+      _hPointX,
+      _hPointY,
+      _gammaX,
+      _gammaY,
+      _uPointX,
+      _uPointY,
+      _vPointX,
+      _vPointY);
   }
 }
