@@ -12,6 +12,8 @@ module.exports = {
     reporterOptions: {
       currency: "USD",
       gasPrice: 20,
+      excludeContracts: ["Migrations"],
+      src: "test",
     },
   },
   compilers: {
