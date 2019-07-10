@@ -5,70 +5,210 @@ import "./Secp256k1.sol";
 /**
  * @title Verifiable Random Functions (VRF)
  * @notice Library for supporting VRF verifications using the curve `Secp256k1` and the hash algorithm `SHA256`.
- * @dev This library follows the algorithms described in [VRF-draft-04](https://tools.ietf.org/pdf/draft-irtf-cfrg-vrf-04)
- * and [RFC6979](https://tools.ietf.org/html/rfc6979). It supports the ciphersuite  _SECP256K1_SHA256_TAI_, i.e. the aforementioned algorithms using `SHA256` and the `Secp256k1` curve.
+ * @dev This library follows the algorithms described in [VRF-draft-04](https://tools.ietf.org/pdf/draft-irtf-cfrg-vrf-04) and [RFC6979](https://tools.ietf.org/html/rfc6979).
+ * It supports the ciphersuite  _SECP256K1_SHA256_TAI_, i.e. the aforementioned algorithms using `SHA256` and the `Secp256k1` curve.
  * @author Witnet Foundation
  */
 
 
 contract VRF is Secp256k1 {
 
-  /// @dev VRF verification providing the message
+  /// @dev VRF verification by providing the public key, the message and the VRF proof.
+  /// This funtion computes several elliptic curve operations which may lead to extensive gas consumption.
   /// @param _publicKey The public key as an array composed of [pubKey-x`, pubKey-y]
   /// @param _proof The VRF proof as an array composed of [gamma-x, gamma-y, c, s]
-  /// @param _message The message used for computing the VRF
+  /// @param _message The message (in bytes) used for computing the VRF
   /// @return true, if VRF proof is valid
-  function verifyMessage(uint256[2] memory _publicKey, uint256[4] memory _proof, bytes memory _message) public pure returns (bool) {
-    // Step 2: Hash to try and increment
-    // Output: hashed value, a finite EC point in G
+  function verify(uint256[2] memory _publicKey, uint256[4] memory _proof, bytes memory _message) public pure returns (bool) {
+    // Step 2: Hash to try and increment (outputs a hashed value, a finite EC point in G)
     uint256[2] memory hPoint;
     (hPoint[0], hPoint[1]) = hashToTryAndIncrement(_publicKey, _message);
 
-    return verify(_publicKey, _proof, hPoint);
+    // Step 3: U = s*B - c*Y (where B is the generator)
+    (uint256 uPointX, uint256 uPointY) = mulSubMul(
+      _proof[3],
+      GX,
+      GY,
+      _proof[2],
+      _publicKey[0],
+      _publicKey[1]);
+
+    // Step 4: V = s*H - c*Gamma
+    (uint256 vPointX, uint256 vPointY) = mulSubMul(
+      _proof[3],
+      hPoint[0],
+      hPoint[1],
+      _proof[2],
+      _proof[0],_proof[1]);
+
+    // Step 5: derived c from hash points(...)
+    bytes16 derivedC = hashPoints(
+      hPoint[0],
+      hPoint[1],
+      _proof[0],
+      _proof[1],
+      uPointX,
+      uPointY,
+      vPointX,
+      vPointY);
+
+    // Step 6: Check validity c == c'
+    return uint128(derivedC) == _proof[2];
   }
 
-  /// @dev VRF verification providing the `H` point, thus avoiding Step 2
+  /// @dev VRF fast verification by providing the public key, the message, the VRF proof and some elliptic curve points to enable the fast verification.
+  /// This function uses the `ecrecover` precompiled function to verify elliptic curve multiplications by decreasing the security from 32 to 20 bytes.
+  /// Based on the original idea of Vitalik Buterin: https://ethresear.ch/t/you-can-kinda-abuse-ecrecover-to-do-ecmul-in-secp256k1-today/2384/9
   /// @param _publicKey The public key as an array composed of [pubKey-x`, pubKey-y]
   /// @param _proof The VRF proof as an array composed of [gamma-x, gamma-y, c, s]
-  /// @param _hPoint The pre-computed hash point required to verify the VRF as [hPoint-x, hPoint-y]
+  /// @param _message The message (in bytes) used for computing the VRF
+  /// @param _uPoint The `u` EC point defined as `U = s*B - c*Y`
+  /// @param _vComponents The components required to compute `v` as `V = s*H - c*Gamma`
   /// @return true, if VRF proof is valid
-  function verify(uint256[2] memory _publicKey, uint256[4] memory _proof, uint256[2] memory _hPoint) public pure returns (bool) {
-    // Step 3: U = s*B - c*Y (where B is the generator)
-    (uint256 uPointX, uint256 uPointY) = sub2Muls(_proof[3], GX, GY, _proof[2], _publicKey[0], _publicKey[1]);
-    // Step 4: V = s*H - c*Gamma
-    (uint256 vPointX, uint256 vPointY) = sub2Muls(_proof[3], _hPoint[0], _hPoint[1], _proof[2], _proof[0], _proof[1]);
+  function fastVerify(
+    uint256[2] memory _publicKey,
+    uint256[4] memory _proof,
+    bytes memory _message,
+    uint256[2] memory _uPoint,
+    uint256[4] memory _vComponents)
+  public pure returns (bool)
+  {
+    // Step 2: Hash to try and increment -> hashed value, a finite EC point in G
+    uint256[2] memory hPoint;
+    (hPoint[0], hPoint[1]) = hashToTryAndIncrement(_publicKey, _message);
+
+    // Step 3 & Step 4:
+    // U = s*B - c*Y (where B is the generator)
+    // V = s*H - c*Gamma
+    if (!ecMulSubMulVerify(
+      _proof[3],
+      _proof[2],
+      _publicKey[0],
+      _publicKey[1],
+      _uPoint[0],
+      _uPoint[1]) &&
+      !ecMulVerify(
+        _proof[3],
+        hPoint[0],
+        hPoint[1],
+        _vComponents[0],
+        _vComponents[1]) &&
+      !ecMulVerify(
+        _proof[2],
+        _proof[0],
+        _proof[1],
+        _vComponents[2],
+        _vComponents[3])
+      )
+    {
+      return false;
+    }
+    (uint256 vPointX, uint256 vPointY) = ecSub(
+      _vComponents[0],
+      _vComponents[1],
+      _vComponents[2],
+      _vComponents[3],
+      AA,
+      PP);
+
     // Step 5: derived c from hash points(...)
-    bytes16 derived_c = hashPoints(_hPoint[0], _hPoint[1], _proof[0], _proof[1], uPointX, uPointY, vPointX, vPointY);
+    bytes16 derivedC = hashPoints(
+      hPoint[0],
+      hPoint[1],
+      _proof[0],
+      _proof[1],
+      _uPoint[0],
+      _uPoint[1],
+      vPointX,
+      vPointY);
+
     // Step 6: Check validity c == c'
-    return uint128(derived_c) == _proof[2];
+    return uint128(derivedC) == _proof[2];
   }
 
-  /// @dev Substracts two key derivation functions, i.e. two multiplications of an scalar times a point
-  /// @param _s1 The scalar `s1`
-  /// @param _a1 The `x` coordinate of point `A`
-  /// @param _a2 The `y` coordinate of point `A`
-  /// @param _s2 The scalar `s2`
-  /// @param _b1 The `x` coordinate of point `B`
-  /// @param _b2 The `y` coordinate of point `B`
-  /// @return The derived point in affine cooridnates
-  function sub2Muls(uint256 _s1, uint256 _a1, uint256 _a2, uint256 _s2, uint256 _b1, uint256 _b2) internal pure returns (uint256, uint256) {
-    (uint256 m1, uint256 m2) = derivePoint(_s1, _a1, _a2);
-    (uint256 n1, uint256 n2) = derivePoint(_s2, _b1, _b2);
-    (uint256 r1, uint256 r2) = ecSub(m1, m2, n1, n2, AA, PP);
+  /// @dev Decode from bytes a VRF proof
+  /// @param _proof The VRF proof as an array composed of [gamma-x, gamma-y, c, s]
+  /// @return The VRF proof as an array composed of [gamma-x, gamma-y, c, s]
+  function decodeProof(bytes memory _proof) public pure returns (uint[4] memory) {
+    uint8 gammaSign;
+    uint256 gammaX;
+    uint128 c;
+    uint256 s;
+    assembly {
+      gammaSign := mload(add(_proof, 1))
+	    gammaX := mload(add(_proof, 33))
+      c := mload(add(_proof, 49))
+      s := mload(add(_proof, 81))
+    }
+    uint256 gammaY = deriveY(gammaSign, gammaX);
 
-    return (r1, r2);
+    return [
+      gammaX,
+      gammaY,
+      c,
+      s];
   }
 
-  /// @dev Function to convert a `Hash(PK|DATA)` to a point in the curve as stated in [VRF-draft-04](https://tools.ietf.org/pdf/draft-irtf-cfrg-vrf-04)
+  /// @dev Decode from bytes an EC point
+  /// @param _point The EC point as bytes
+  /// @return The point as [point-x, point-y]
+  function decodePoint(bytes memory _point) public pure returns (uint[2] memory) {
+    uint8 sign;
+    uint256 x;
+    assembly {
+      sign := mload(add(_point, 1))
+	    x := mload(add(_point, 33))
+    }
+    uint256 y = deriveY(sign, x);
+
+    return [x, y];
+  }
+
+  /// @dev Compute the parameters (EC points) required for the VRF fast verification function.
+  /// @param _publicKey The public key as an array composed of [pubKey-x`, pubKey-y]
+  /// @param _proof The VRF proof as an array composed of [gamma-x, gamma-y, c, s]
+  /// @param _message The message (in bytes) used for computing the VRF
+  /// @return The fast verify required parameters as the tuple `([uPointX, uPointY], [sHX, sHY, cGammaX, cGammaY]`
+  function computeFastVerifyParams(uint256[2] memory _publicKey, uint256[4] memory _proof, bytes memory _message)
+    public pure returns (uint256[2] memory, uint256[4] memory)
+  {
+    // Requirements for Step 3: U = s*B - c*Y (where B is the generator)
+    uint256[2] memory hPoint;
+    (hPoint[0], hPoint[1]) = hashToTryAndIncrement(_publicKey, _message);
+    (uint256 uPointX, uint256 uPointY) = mulSubMul(
+      _proof[3],
+      GX,
+      GY,
+      _proof[2],
+      _publicKey[0],
+      _publicKey[1]);
+    // Requirements for Step 4: V = s*H - c*Gamma
+    (uint256 sHX, uint256 sHY) = derivePoint(_proof[3], hPoint[0], hPoint[1]);
+    (uint256 cGammaX, uint256 cGammaY) = derivePoint(_proof[2], _proof[0], _proof[1]);
+
+    return (
+      [uPointX, uPointY],
+      [
+        sHX,
+        sHY,
+        cGammaX,
+        cGammaY
+      ]);
+  }
+
+  /// @dev Function to convert a `Hash(PK|DATA)` to a point in the curve as defined in [VRF-draft-04](https://tools.ietf.org/pdf/draft-irtf-cfrg-vrf-04).
+  /// Used in Step 2 of VRF verification function.
   /// @param _publicKey The public key as an array composed of [pubKey-x`, pubKey-y]
   /// @param _message The message used for computing the VRF
   /// @return The hash point in affine cooridnates
-  function hashToTryAndIncrement(uint256[2] memory _publicKey, bytes memory _message) public pure returns (uint, uint) {
+  function hashToTryAndIncrement(uint256[2] memory _publicKey, bytes memory _message) internal pure returns (uint, uint) {
     // Prepare bytes
     uint cLength = 2 + 33 + _message.length + 1;
     bytes memory c = new bytes(cLength);
+
     // Step 1: public key to bytes
     bytes memory pkBytes = encodePoint(_publicKey[0], _publicKey[1]);
+
     // Step 2: V = cipher_suite | 0x01 | public_key_bytes | message | ctr
     // Ciphersuite code for SECP256K1-SHA256-TAI is 0xFE
     c[0] = byte(uint8(254));
@@ -79,8 +219,9 @@ contract VRF is Secp256k1 {
     for (uint i = 0; i < _message.length; i++) {
       c[35+i] = _message[i];
     }
+
     // Step 3: find a valid EC point
-    // loop over counter ctr starting at 0x00 and do hash
+    // Loop over counter ctr starting at 0x00 and do hash
     for (uint8 ctr = 0; ctr < 256; ctr++) {
       // Counter update
       c[cLength-1] = byte(ctr);
@@ -88,7 +229,13 @@ contract VRF is Secp256k1 {
       // Step 4: arbitraty string to point and check if it is on curve
       uint hPointX = uint256(sha);
       uint hPointY = deriveY(2, hPointX);
-      if (isOnCurve(hPointX, hPointY, AA, BB, PP)) {
+      if (isOnCurve(
+        hPointX,
+        hPointY,
+        AA,
+        BB,
+        PP))
+      {
         // Step 5 (omitted): calculate H (cofactor is 1 on secp256k1)
         // If H is not "INVALID" and cofactor > 1, set H = cofactor * H
         return (hPointX, hPointY);
@@ -97,7 +244,8 @@ contract VRF is Secp256k1 {
     revert("No valid point was found");
   }
 
-  /// @dev Function to hash a certain set of points as specified in [VRF-draft-04](https://tools.ietf.org/pdf/draft-irtf-cfrg-vrf-04)
+  /// @dev Function to hash a certain set of points as specified in [VRF-draft-04](https://tools.ietf.org/pdf/draft-irtf-cfrg-vrf-04).
+  /// Used in Step 5 of VRF verification function.
   /// @param _hPointX The coordinate `x` of point `H`
   /// @param _hPointY The coordinate `y` of point `H`
   /// @param _gammaX The coordinate `x` of the point `Gamma`
@@ -116,7 +264,8 @@ contract VRF is Secp256k1 {
     uint256 _uPointY,
     uint256 _vPointX,
     uint256 _vPointY)
-  public pure returns (bytes16) {
+  internal pure returns (bytes16)
+  {
     bytes memory c = new bytes(134);
     // Ciphersuite 0xFE
     c[0] = byte(uint8(254));
@@ -151,60 +300,112 @@ contract VRF is Secp256k1 {
     return half1;
   }
 
-  /// @dev Function to derive the `y` coordinate given the `x` coordinate and the parity byte
-  /// @param _yBit The parity byte following the ec point compressed format
-  /// @param _x The coordinate `x` of the point
-  /// @return The coordinate `y` of the point
-  function deriveY(uint8 _yBit, uint256 _x) public pure returns (uint256) {
-    uint256 y2 = addmod(mulmod(_x, mulmod(_x, _x, PP), PP), 7, PP);
-    uint256 y = expMod(y2, (PP + 1) / 4, PP);
-    y = (y + _yBit) % 2 == 0 ? y : PP - y;
-
-    return y;
-  }
-
-  /// @dev Decode from bytes a VRF proof
-  /// @param _proof The VRF proof as an array composed of [gamma-x, gamma-y, c, s]
-  /// @return The VRF proof as an array composed of [gamma-x, gamma-y, c, s]
-  function decodeProof(bytes memory _proof) public pure returns (uint[4] memory) {
-
-    uint8 gamma_sign;
-    uint256 gamma_x;
-    uint128 c;
-    uint256 s;
-    assembly {
-      gamma_sign := mload(add(_proof, 1))
-	    gamma_x := mload(add(_proof, 33))
-      c := mload(add(_proof, 49))
-      s := mload(add(_proof, 81))
-    }
-    uint256 gamma_y = deriveY(gamma_sign, gamma_x);
-
-    return [gamma_x, gamma_y, c, s];
-  }
-
-  /// @dev Decode from bytes an EC point
-  /// @param _point The EC point as bytes
-  /// @return The point as [point-x, point-y]
-  function decodePoint(bytes memory _point) public pure returns (uint[2] memory) {
-    uint8 sign;
-    uint256 x;
-    assembly {
-      sign := mload(add(_point, 1))
-	    x := mload(add(_point, 33))
-    }
-    uint256 y = deriveY(sign, x);
-
-    return [x, y];
-  }
-
   /// @dev Encode an EC point to bytes
   /// @param _x The coordinate `x` of the point
   /// @param _y The coordinate `y` of the point
   /// @return The point coordinates as bytes
-  function encodePoint(uint256 _x, uint256 _y) public pure returns (bytes memory) {
+  function encodePoint(uint256 _x, uint256 _y) internal pure returns (bytes memory) {
     uint8 prefix = uint8(2 + (_y % 2));
 
     return abi.encodePacked(prefix, _x);
+  }
+
+  /// @dev Substracts two key derivation functionsas `s1*A - s2*B`.
+  /// @param _s1 The scalar `s1`
+  /// @param _a1 The `x` coordinate of point `A`
+  /// @param _a2 The `y` coordinate of point `A`
+  /// @param _s2 The scalar `s2`
+  /// @param _b1 The `x` coordinate of point `B`
+  /// @param _b2 The `y` coordinate of point `B`
+  /// @return The derived point in affine cooridnates
+  function mulSubMul(
+    uint256 _s1,
+    uint256 _a1,
+    uint256 _a2,
+    uint256 _s2,
+    uint256 _b1,
+    uint256 _b2)
+  internal pure returns (uint256, uint256)
+  {
+    (uint256 m1, uint256 m2) = derivePoint(_s1, _a1, _a2);
+    (uint256 n1, uint256 n2) = derivePoint(_s2, _b1, _b2);
+    (uint256 r1, uint256 r2) = ecSub(
+      m1,
+      m2,
+      n1,
+      n2,
+      AA,
+      PP);
+
+    return (r1, r2);
+  }
+
+  /// @dev Verify an Elliptic Curve multiplication of the form `(qx,qy) = scalar*(x,y)` by using the precompiled `ecrecover` function.
+  /// The usage of the precompiled `ecrecover` function decreases the security from 32 to 20 bytes.
+  /// Based on the original idea of Vitalik Buterin: https://ethresear.ch/t/you-can-kinda-abuse-ecrecover-to-do-ecmul-in-secp256k1-today/2384/9
+  /// @param _scalar The scalar of the point multiplication
+  /// @param _x The coordinate `x` of the point
+  /// @param _y The coordinate `y` of the point
+  /// @param _qx The coordinate `x` of the multiplication result
+  /// @param _qy The coordinate `y` of the multiplication result
+  /// @return true, if first 20 bytes match
+  function ecMulVerify(
+    uint256 _scalar,
+    uint256 _x,
+    uint256 _y,
+    uint256 _qx,
+    uint256 _qy)
+  internal pure returns(bool)
+  {
+    address result = ecrecover(
+      0,
+      _y % 2 != 0 ? 28 : 27,
+      bytes32(_x),
+      bytes32(mulmod(_scalar, _x, NN)));
+
+    return pointToAddress(_qx, _qy) == result;
+  }
+
+  /// @dev Verify an Elliptic Curve operation of the form `Q = scalar1*(gx,gy) - scalar2*(x,y)` by using the precompiled `ecrecover` function, where `(gx,gy)` is the generator of the EC.
+  /// The usage of the precompiled `ecrecover` function decreases the security from 32 to 20 bytes.
+  /// Based on SolCrypto library: https://github.com/HarryR/solcrypto
+  /// @param _scalar1 The scalar of the multiplication of `(gx,gy)`
+  /// @param _scalar2 The scalar of the multiplication of `(x,y)`
+  /// @param _x The coordinate `x` of the point to be mutiply by `scalar2`
+  /// @param _y The coordinate `y` of the point to be mutiply by `scalar2`
+  /// @param _qx The coordinate `x` of the equation result
+  /// @param _qy The coordinate `y` of the equation result
+  /// @return true, if first 20 bytes match
+  function ecMulSubMulVerify(
+    uint256 _scalar1,
+    uint256 _scalar2,
+    uint256 _x,
+    uint256 _y,
+    uint256 _qx,
+    uint256 _qy)
+  internal pure returns(bool)
+  {
+    uint256 scalar1 = (NN - _scalar1) % NN;
+    scalar1 = mulmod(scalar1, _x, NN);
+    uint256 scalar2 = (NN - _scalar2) % NN;
+
+    address result = ecrecover(
+      bytes32(scalar1),
+      _y % 2 != 0 ? 28 : 27,
+      bytes32(_x),
+      bytes32(mulmod(scalar2, _x, NN)));
+
+    return pointToAddress(_qx, _qy) == result;
+  }
+
+  /// @dev Gets the address corresponding to the EC point digest (keccak256), i.e. the first 20 bytes of the digest.
+  /// This function is used for performing a fast EC multiplication verification.
+  /// @param _x The coordinate `x` of the point
+  /// @param _y The coordinate `y` of the point
+  /// @return The address of the EC point digest (keccak256)
+  function pointToAddress(uint256 _x, uint256 _y)
+      internal pure returns(address)
+  {
+    return address(uint256(keccak256(abi.encodePacked(_x, _y))) & 0x00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF);
   }
 }
