@@ -1,0 +1,30 @@
+{
+  "hashToTryAndIncrement": {
+    "valid": [
+      {
+        "description": "1st iteration",
+        "publicKey": {
+          "x": "0x2c8c31fc9f990c6b55e3865a184a4ce50e09481f2eaeb3e60ec1cea13a6ae645",
+          "y": "0x64b95e4fdb6948c0386e189b006a29f686769b011704275e4459822dc3328085"
+        },
+        "message": "0x73616d706c65",
+        "hashPoint": {
+          "x": "0x397a915943d5c8192c79fea8a4b6d45be41e0a9ae2722c1e192a009cb9f38ce3",
+          "y": "0x9fb51558a73827c2571280f89adb0fe5626497ef54061836d2c83bb101d88ac"
+        }
+      },
+      {
+        "description": "6th iteration",
+        "publicKey": {
+          "x": "0x2c8c31fc9f990c6b55e3865a184a4ce50e09481f2eaeb3e60ec1cea13a6ae645",
+          "y": "0x64b95e4fdb6948c0386e189b006a29f686769b011704275e4459822dc3328085"
+        },
+        "message": "0x73616d706c77",
+        "hashPoint": {
+          "x": "0xe906a3b4379ddbff598994b2ff026766fb66424710776099b85111f23f8eebcc",
+          "y": "0x7638965bf85f5f2b6641324389ef2ffb99576ba72ec19d8411a5ea1dd251b112"
+        }
+      }
+    ]
+  }
+}

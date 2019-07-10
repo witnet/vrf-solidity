@@ -1,7 +1,7 @@
 const VRFTestHelper = artifacts.require("VRFTestHelper")
-const testdata = require("./data.json")
+const testdata = require("./vrf-data.json")
 
-contract("VRF Test Helper (gas costs)", accounts => {
+contract("VRFTestHelper - Gas consumption analysis", accounts => {
   describe("VRF verification functions:", () => {
     let helper
     before(async () => {

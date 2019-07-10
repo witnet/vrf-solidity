@@ -2,6 +2,14 @@ pragma solidity ^0.5.0;
 
 import "../contracts/VRF.sol";
 
+/**
+ * @title Test Helper for the VRF contract
+ * @dev The aim of this contract is twofold:
+ * 1. Raise the visibility modifier of VRF contract functions for testing purposes
+ * 2. Removal of the `pure` modifier to allow gas consumption analysis
+ * @author Witnet Foundation
+ */
+
 
 contract VRFTestHelper is VRF {
 
@@ -47,4 +55,7 @@ contract VRFTestHelper is VRF {
     return computeFastVerifyParams(_publicKey, _proof, _message);
   }
 
+  function _hashToTryAndIncrement(uint256[2] memory _publicKey, bytes memory _message) public returns (uint, uint) {
+    return hashToTryAndIncrement(_publicKey, _message);
+  }
 }
