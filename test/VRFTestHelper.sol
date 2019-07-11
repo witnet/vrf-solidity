@@ -118,4 +118,22 @@ contract VRFTestHelper is VRF {
       _qx,
       _qy);
   }
+
+  function _ecMulSubMulVerify(
+    uint256 _scalar1,
+    uint256 _scalar2,
+    uint256 _x,
+    uint256 _y,
+    uint256 _qx,
+    uint256 _qy)
+  public pure returns(bool)
+  {
+    return ecMulSubMulVerify(
+      _scalar1,
+      _scalar2,
+      _x,
+      _y,
+      _qx,
+      _qy);
+  }
 }

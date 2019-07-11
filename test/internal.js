@@ -39,21 +39,27 @@ contract("VRFTestHelper - internals", accounts => {
       helper = await VRFTestHelper.new()
     })
     for (let [index, point] of testdata.points.valid.entries()) {
-      it(`Encode EC point to compressed format (${index + 1})`, async () => {
+      it(`should encode an EC point to compressed format (${index + 1})`, async () => {
         const res = await helper._encodePoint.call(point.uncompressed.x, point.uncompressed.y)
         assert.equal(res, point.compressed)
       })
     }
     for (let [index, test] of testdata.ecMulSubMul.valid.entries()) {
-      it(`EC arithmetic operation - ecMulSubMul (${index + 1})`, async () => {
+      it(`should do an ecMulSubMul operation (${index + 1})`, async () => {
         const res = await helper._ecMulSubMul.call(test.scalar1, test.a1, test.a2, test.scalar2, test.b1, test.b2)
         assert.equal(web3.utils.numberToHex(res[0]), test.output.x)
         assert.equal(web3.utils.numberToHex(res[1]), test.output.y)
       })
     }
-    for (let [index, test] of testdata.ecMultiplication.valid.entries()) {
-      it(`EC multiplication verification (with ecrecover) (${index + 1})`, async () => {
+    for (let [index, test] of testdata.ecMul.valid.entries()) {
+      it(`should verify an ecMul operation (ecrecover hack) (${index + 1})`, async () => {
         const res = await helper._ecMulVerify.call(test.scalar, test.x, test.y, test.output.x, test.output.y)
+        assert.equal(res, true)
+      })
+    }
+    for (let [index, test] of testdata.ecMulSubMulVerify.valid.entries()) {
+      it(`should verify an ecMulSubMul operation (ecrecover hack enhanced) (${index + 1})`, async () => {
+        const res = await helper._ecMulSubMulVerify.call(test.scalar1, test.scalar2, test.x, test.y, test.output.x, test.output.y)
         assert.equal(res, true)
       })
     }
