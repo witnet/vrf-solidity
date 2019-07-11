@@ -102,4 +102,20 @@ contract VRFTestHelper is VRF {
       _b1,
       _b2);
   }
+
+  function _ecMulVerify(
+    uint256 _scalar,
+    uint256 _x,
+    uint256 _y,
+    uint256 _qx,
+    uint256 _qy)
+  public pure returns(bool)
+  {
+    return ecMulVerify(
+      _scalar,
+      _x,
+      _y,
+      _qx,
+      _qy);
+  }
 }

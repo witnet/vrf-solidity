@@ -33,7 +33,7 @@ contract("VRFTestHelper - internals", accounts => {
       })
     }
   })
-  describe("VRF internal auxiliary functions: ", () => {
+  describe("VRF internal aux. functions: ", () => {
     let helper
     before(async () => {
       helper = await VRFTestHelper.new()
@@ -49,6 +49,12 @@ contract("VRFTestHelper - internals", accounts => {
         const res = await helper._mulSubMul.call(test.scalar1, test.a1, test.a2, test.scalar2, test.b1, test.b2)
         assert.equal(web3.utils.numberToHex(res[0]), test.output.x)
         assert.equal(web3.utils.numberToHex(res[1]), test.output.y)
+      })
+    }
+    for (let [index, test] of testdata.ecMultiplication.valid.entries()) {
+      it(`EC multiplication verification (with ecrecover) (${index + 1})`, async () => {
+        const res = await helper._ecMulVerify.call(test.scalar, test.x, test.y, test.output.x, test.output.y)
+        assert.equal(res, true)
       })
     }
   })
