@@ -311,24 +311,24 @@ contract VRF is Secp256k1 {
   }
 
   /// @dev Substracts two key derivation functionsas `s1*A - s2*B`.
-  /// @param _s1 The scalar `s1`
+  /// @param _scalar1 The scalar `s1`
   /// @param _a1 The `x` coordinate of point `A`
   /// @param _a2 The `y` coordinate of point `A`
-  /// @param _s2 The scalar `s2`
+  /// @param _scalar2 The scalar `s2`
   /// @param _b1 The `x` coordinate of point `B`
   /// @param _b2 The `y` coordinate of point `B`
   /// @return The derived point in affine cooridnates
   function mulSubMul(
-    uint256 _s1,
+    uint256 _scalar1,
     uint256 _a1,
     uint256 _a2,
-    uint256 _s2,
+    uint256 _scalar2,
     uint256 _b1,
     uint256 _b2)
   internal pure returns (uint256, uint256)
   {
-    (uint256 m1, uint256 m2) = derivePoint(_s1, _a1, _a2);
-    (uint256 n1, uint256 n2) = derivePoint(_s2, _b1, _b2);
+    (uint256 m1, uint256 m2) = derivePoint(_scalar1, _a1, _a2);
+    (uint256 n1, uint256 n2) = derivePoint(_scalar2, _b1, _b2);
     (uint256 r1, uint256 r2) = ecSub(
       m1,
       m2,
