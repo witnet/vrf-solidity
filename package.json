@@ -14,7 +14,8 @@
     "solium": "solium -d contracts",
     "solium:fix": "solium -d contracts --fix",
     "lint": "eslint ./test",
-    "lint:fix": "eslint ./test --fix"
+    "lint:fix": "eslint ./test --fix",
+    "coverage": "solidity-coverage"
   },
   "author": "Witnet Foundation <info@witnet.foundation>",
   "repository": {
@@ -41,6 +42,7 @@
     "eth-gas-reporter": "^0.2.1",
     "ethlint": "^1.2.4",
     "ganache-cli": "^6.4.4",
+    "solidity-coverage": "^0.6.0-beta.5",
     "truffle": "^5.0.24",
     "truffle-assertions": "^0.9.1"
   }
