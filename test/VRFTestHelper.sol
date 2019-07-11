@@ -2,6 +2,7 @@ pragma solidity ^0.5.0;
 
 import "../contracts/VRF.sol";
 
+
 /**
  * @title Test Helper for the VRF contract
  * @dev The aim of this contract is twofold:
@@ -9,8 +10,6 @@ import "../contracts/VRF.sol";
  * 2. Removal of the `pure` modifier to allow gas consumption analysis
  * @author Witnet Foundation
  */
-
-
 contract VRFTestHelper is VRF {
 
   function _verify(

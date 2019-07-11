@@ -2,13 +2,12 @@ pragma solidity ^0.5.0;
 
 import "elliptic-curve-solidity/contracts/EllipticCurve.sol";
 
+
 /**
  * @title Secp256k1 Elliptic Curve
  * @dev Secp256k1 Elliptic Curve supporting point derivation function.
  * @author Witnet Foundation
  */
-
-
 contract Secp256k1 is EllipticCurve {
 
   // Generator coordinate `x` of EC equation
@@ -24,7 +23,7 @@ contract Secp256k1 is EllipticCurve {
   // Order of the curve
   uint256 constant NN = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141;
 
-  /// @dev Public Key derivation from private key.
+  /// @dev Public key derivation from private key.
   /// @param _d The scalar
   /// @param _x The coordinate x
   /// @param _y The coordinate y

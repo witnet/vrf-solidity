@@ -2,6 +2,7 @@ pragma solidity ^0.5.0;
 
 import "./Secp256k1.sol";
 
+
 /**
  * @title Verifiable Random Functions (VRF)
  * @notice Library for supporting VRF verifications using the curve `Secp256k1` and the hash algorithm `SHA256`.
@@ -9,14 +10,12 @@ import "./Secp256k1.sol";
  * It supports the ciphersuite  _SECP256K1_SHA256_TAI_, i.e. the aforementioned algorithms using `SHA256` and the `Secp256k1` curve.
  * @author Witnet Foundation
  */
-
-
 contract VRF is Secp256k1 {
 
   /// @dev VRF verification by providing the public key, the message and the VRF proof.
   /// This funtion computes several elliptic curve operations which may lead to extensive gas consumption.
-  /// @param _publicKey The public key as an array composed of [pubKey-x`, pubKey-y]
-  /// @param _proof The VRF proof as an array composed of [gamma-x, gamma-y, c, s]
+  /// @param _publicKey The public key as an array composed of `[pubKey-x, pubKey-y]`
+  /// @param _proof The VRF proof as an array composed of `[gamma-x, gamma-y, c, s]`
   /// @param _message The message (in bytes) used for computing the VRF
   /// @return true, if VRF proof is valid
   function verify(uint256[2] memory _publicKey, uint256[4] memory _proof, bytes memory _message) public pure returns (bool) {
@@ -59,8 +58,8 @@ contract VRF is Secp256k1 {
   /// @dev VRF fast verification by providing the public key, the message, the VRF proof and some elliptic curve points to enable the fast verification.
   /// This function uses the `ecrecover` precompiled function to verify elliptic curve multiplications by decreasing the security from 32 to 20 bytes.
   /// Based on the original idea of Vitalik Buterin: https://ethresear.ch/t/you-can-kinda-abuse-ecrecover-to-do-ecmul-in-secp256k1-today/2384/9
-  /// @param _publicKey The public key as an array composed of [pubKey-x`, pubKey-y]
-  /// @param _proof The VRF proof as an array composed of [gamma-x, gamma-y, c, s]
+  /// @param _publicKey The public key as an array composed of `[pubKey-x, pubKey-y]`
+  /// @param _proof The VRF proof as an array composed of `[gamma-x, gamma-y, c, s]`
   /// @param _message The message (in bytes) used for computing the VRF
   /// @param _uPoint The `u` EC point defined as `U = s*B - c*Y`
   /// @param _vComponents The components required to compute `v` as `V = s*H - c*Gamma`
@@ -126,9 +125,9 @@ contract VRF is Secp256k1 {
     return uint128(derivedC) == _proof[2];
   }
 
-  /// @dev Decode from bytes a VRF proof
-  /// @param _proof The VRF proof as an array composed of [gamma-x, gamma-y, c, s]
-  /// @return The VRF proof as an array composed of [gamma-x, gamma-y, c, s]
+  /// @dev Decode from bytes to VRF proof
+  /// @param _proof The VRF proof as an array composed of `[gamma-x, gamma-y, c, s]`
+  /// @return The VRF proof as an array composed of `[gamma-x, gamma-y, c, s]`
   function decodeProof(bytes memory _proof) public pure returns (uint[4] memory) {
     uint8 gammaSign;
     uint256 gammaX;
@@ -149,9 +148,9 @@ contract VRF is Secp256k1 {
       s];
   }
 
-  /// @dev Decode from bytes an EC point
+  /// @dev Decode from bytes to EC point
   /// @param _point The EC point as bytes
-  /// @return The point as [point-x, point-y]
+  /// @return The point as `[point-x, point-y]`
   function decodePoint(bytes memory _point) public pure returns (uint[2] memory) {
     uint8 sign;
     uint256 x;
@@ -165,10 +164,10 @@ contract VRF is Secp256k1 {
   }
 
   /// @dev Compute the parameters (EC points) required for the VRF fast verification function.
-  /// @param _publicKey The public key as an array composed of [pubKey-x`, pubKey-y]
-  /// @param _proof The VRF proof as an array composed of [gamma-x, gamma-y, c, s]
+  /// @param _publicKey The public key as an array composed of `[pubKey-x, pubKey-y]`
+  /// @param _proof The VRF proof as an array composed of `[gamma-x, gamma-y, c, s]`
   /// @param _message The message (in bytes) used for computing the VRF
-  /// @return The fast verify required parameters as the tuple `([uPointX, uPointY], [sHX, sHY, cGammaX, cGammaY]`
+  /// @return The fast verify required parameters as the tuple `([uPointX, uPointY], [sHX, sHY, cGammaX, cGammaY])`
   function computeFastVerifyParams(uint256[2] memory _publicKey, uint256[4] memory _proof, bytes memory _message)
     public pure returns (uint256[2] memory, uint256[4] memory)
   {
@@ -198,7 +197,7 @@ contract VRF is Secp256k1 {
 
   /// @dev Function to convert a `Hash(PK|DATA)` to a point in the curve as defined in [VRF-draft-04](https://tools.ietf.org/pdf/draft-irtf-cfrg-vrf-04).
   /// Used in Step 2 of VRF verification function.
-  /// @param _publicKey The public key as an array composed of [pubKey-x`, pubKey-y]
+  /// @param _publicKey The public key as an array composed of `[pubKey-x, pubKey-y]`
   /// @param _message The message used for computing the VRF
   /// @return The hash point in affine cooridnates
   function hashToTryAndIncrement(uint256[2] memory _publicKey, bytes memory _message) internal pure returns (uint, uint) {
