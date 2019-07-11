@@ -85,7 +85,7 @@ contract VRFTestHelper is VRF {
     return encodePoint(_x, _y);
   }
 
-  function _mulSubMul(
+  function _ecMulSubMul(
     uint256 _scalar1,
     uint256 _a1,
     uint256 _a2,
@@ -94,7 +94,7 @@ contract VRFTestHelper is VRF {
     uint256 _b2)
   public pure returns (uint256, uint256)
   {
-    return mulSubMul(
+    return ecMulSubMul(
       _scalar1,
       _a1,
       _a2,

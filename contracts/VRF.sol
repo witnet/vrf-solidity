@@ -25,7 +25,7 @@ contract VRF is Secp256k1 {
     (hPoint[0], hPoint[1]) = hashToTryAndIncrement(_publicKey, _message);
 
     // Step 3: U = s*B - c*Y (where B is the generator)
-    (uint256 uPointX, uint256 uPointY) = mulSubMul(
+    (uint256 uPointX, uint256 uPointY) = ecMulSubMul(
       _proof[3],
       GX,
       GY,
@@ -34,7 +34,7 @@ contract VRF is Secp256k1 {
       _publicKey[1]);
 
     // Step 4: V = s*H - c*Gamma
-    (uint256 vPointX, uint256 vPointY) = mulSubMul(
+    (uint256 vPointX, uint256 vPointY) = ecMulSubMul(
       _proof[3],
       hPoint[0],
       hPoint[1],
@@ -175,7 +175,7 @@ contract VRF is Secp256k1 {
     // Requirements for Step 3: U = s*B - c*Y (where B is the generator)
     uint256[2] memory hPoint;
     (hPoint[0], hPoint[1]) = hashToTryAndIncrement(_publicKey, _message);
-    (uint256 uPointX, uint256 uPointY) = mulSubMul(
+    (uint256 uPointX, uint256 uPointY) = ecMulSubMul(
       _proof[3],
       GX,
       GY,
@@ -318,7 +318,7 @@ contract VRF is Secp256k1 {
   /// @param _b1 The `x` coordinate of point `B`
   /// @param _b2 The `y` coordinate of point `B`
   /// @return The derived point in affine cooridnates
-  function mulSubMul(
+  function ecMulSubMul(
     uint256 _scalar1,
     uint256 _a1,
     uint256 _a2,
