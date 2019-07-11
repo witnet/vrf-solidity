@@ -1,5 +1,5 @@
 const VRFTestHelper = artifacts.require("VRFTestHelper")
-const testdata = require("./internal-data.json")
+const testdata = require("./testdata.json")
 
 contract("VRFTestHelper - internals", accounts => {
   describe("VRF underlying algorithms: ", () => {
@@ -30,6 +30,18 @@ contract("VRFTestHelper - internals", accounts => {
           web3.utils.hexToBytes(test.vPoint.x),
           web3.utils.hexToBytes(test.vPoint.y))
         assert.equal(res.toString(), test.hash)
+      })
+    }
+  })
+  describe("VRF internal auxiliary functions: ", () => {
+    let helper
+    before(async () => {
+      helper = await VRFTestHelper.new()
+    })
+    for (let [index, point] of testdata.points.valid.entries()) {
+      it(`Encode EC point to compressed format (${index + 1})`, async () => {
+        const res = await helper._encodePoint.call(point.uncompressed.x, point.uncompressed.y)
+        assert.equal(res, point.compressed)
       })
     }
   })

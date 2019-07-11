@@ -80,4 +80,8 @@ contract VRFTestHelper is VRF {
       _vPointX,
       _vPointY);
   }
+
+  function _encodePoint(uint256 _x, uint256 _y) public pure returns (bytes memory) {
+    return encodePoint(_x, _y);
+  }
 }

@@ -1,5 +1,5 @@
 const VRF = artifacts.require("VRF")
-const testdata = require("./vrf-data.json")
+const testdata = require("./testdata.json")
 
 contract("VRF", accounts => {
   describe("Auxiliary functions: ", () => {
