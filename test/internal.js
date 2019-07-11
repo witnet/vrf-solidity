@@ -44,5 +44,12 @@ contract("VRFTestHelper - internals", accounts => {
         assert.equal(res, point.compressed)
       })
     }
+    for (let [index, test] of testdata.mulSubMul.valid.entries()) {
+      it(`EC arithmetic operation - mulSubMul (${index + 1})`, async () => {
+        const res = await helper._mulSubMul.call(test.scalar1, test.a1, test.a2, test.scalar2, test.b1, test.b2)
+        assert.equal(web3.utils.numberToHex(res[0]), test.output.x)
+        assert.equal(web3.utils.numberToHex(res[1]), test.output.y)
+      })
+    }
   })
 })

@@ -84,4 +84,22 @@ contract VRFTestHelper is VRF {
   function _encodePoint(uint256 _x, uint256 _y) public pure returns (bytes memory) {
     return encodePoint(_x, _y);
   }
+
+  function _mulSubMul(
+    uint256 _scalar1,
+    uint256 _a1,
+    uint256 _a2,
+    uint256 _scalar2,
+    uint256 _b1,
+    uint256 _b2)
+  public pure returns (uint256, uint256)
+  {
+    return mulSubMul(
+      _scalar1,
+      _a1,
+      _a2,
+      _scalar2,
+      _b1,
+      _b2);
+  }
 }
