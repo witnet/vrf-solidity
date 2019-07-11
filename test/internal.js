@@ -14,8 +14,8 @@ contract("VRFTestHelper - internals", accounts => {
         const publicKey = [publicKeyX, publicKeyY]
         const message = web3.utils.hexToBytes(test.message)
         const result = await helper._hashToTryAndIncrement.call(publicKey, message)
-        assert.equal(web3.utils.numberToHex(result[0]), test.hashPoint.x)
-        assert.equal(web3.utils.numberToHex(result[1]), test.hashPoint.y)
+        assert(result[0].eq(web3.utils.toBN(test.hashPoint.x)))
+        assert(result[1].eq(web3.utils.toBN(test.hashPoint.y)))
       })
     }
     for (let [index, test] of testdata.hashPoints.valid.entries()) {
@@ -47,8 +47,8 @@ contract("VRFTestHelper - internals", accounts => {
     for (let [index, test] of testdata.ecMulSubMul.valid.entries()) {
       it(`should do an ecMulSubMul operation (${index + 1})`, async () => {
         const res = await helper._ecMulSubMul.call(test.scalar1, test.a1, test.a2, test.scalar2, test.b1, test.b2)
-        assert.equal(web3.utils.numberToHex(res[0]), test.output.x)
-        assert.equal(web3.utils.numberToHex(res[1]), test.output.y)
+        assert(res[0].eq(web3.utils.toBN(test.output.x)))
+        assert(res[1].eq(web3.utils.toBN(test.output.y)))
       })
     }
     for (let [index, test] of testdata.ecMul.valid.entries()) {
@@ -59,7 +59,13 @@ contract("VRFTestHelper - internals", accounts => {
     }
     for (let [index, test] of testdata.ecMulSubMulVerify.valid.entries()) {
       it(`should verify an ecMulSubMul operation (ecrecover hack enhanced) (${index + 1})`, async () => {
-        const res = await helper._ecMulSubMulVerify.call(test.scalar1, test.scalar2, test.x, test.y, test.output.x, test.output.y)
+        const res = await helper._ecMulSubMulVerify.call(
+          test.scalar1,
+          test.scalar2,
+          test.x,
+          test.y,
+          test.output.x,
+          test.output.y)
         assert.equal(res, true)
       })
     }

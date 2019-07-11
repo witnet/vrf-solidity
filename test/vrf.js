@@ -10,17 +10,17 @@ contract("VRF", accounts => {
     for (let [index, proof] of testdata.proofs.valid.entries()) {
       it(`should decode a VRF proof from bytes (${index + 1})`, async () => {
         const decodedProof = await vrf.decodeProof.call(web3.utils.hexToBytes(proof.pi))
-        assert.equal(web3.utils.numberToHex(decodedProof[0]), proof.gamma.x)
-        assert.equal(web3.utils.numberToHex(decodedProof[1]), proof.gamma.y)
-        assert.equal(web3.utils.numberToHex(decodedProof[2]), proof.c)
-        assert.equal(web3.utils.numberToHex(decodedProof[3]), proof.s)
+        assert(decodedProof[0].eq(web3.utils.toBN(proof.gamma.x)))
+        assert(decodedProof[1].eq(web3.utils.toBN(proof.gamma.y)))
+        assert(decodedProof[2].eq(web3.utils.toBN(proof.c)))
+        assert(decodedProof[3].eq(web3.utils.toBN(proof.s)))
       })
     }
     for (let [index, point] of testdata.points.valid.entries()) {
       it(`should decode a compressed EC Point (${index + 1})`, async () => {
         const coord = await vrf.decodePoint.call(web3.utils.hexToBytes(point.compressed))
-        assert.equal(web3.utils.numberToHex(coord[0]), point.uncompressed.x)
-        assert.equal(web3.utils.numberToHex(coord[1]), point.uncompressed.y)
+        assert(coord[0].eq(web3.utils.toBN(point.uncompressed.x)))
+        assert(coord[1].eq(web3.utils.toBN(point.uncompressed.y)))
       })
     }
     for (let [index, test] of testdata.fastVerify.valid.entries()) {
@@ -31,12 +31,12 @@ contract("VRF", accounts => {
         const proof = await vrf.decodeProof.call(web3.utils.hexToBytes(test.pi))
         const message = web3.utils.hexToBytes(test.message)
         const params = await vrf.computeFastVerifyParams.call(publicKey, proof, message)
-        assert.equal(web3.utils.numberToHex(params[0][0]), test.uPoint.x)
-        assert.equal(web3.utils.numberToHex(params[0][1]), test.uPoint.y)
-        assert.equal(web3.utils.numberToHex(params[1][0]), test.vComponents.sH.x)
-        assert.equal(web3.utils.numberToHex(params[1][1]), test.vComponents.sH.y)
-        assert.equal(web3.utils.numberToHex(params[1][2]), test.vComponents.cGamma.x)
-        assert.equal(web3.utils.numberToHex(params[1][3]), test.vComponents.cGamma.y)
+        assert(params[0][0].eq(web3.utils.toBN(test.uPoint.x)))
+        assert(params[0][1].eq(web3.utils.toBN(test.uPoint.y)))
+        assert(params[1][0].eq(web3.utils.toBN(test.vComponents.sH.x)))
+        assert(params[1][1].eq(web3.utils.toBN(test.vComponents.sH.y)))
+        assert(params[1][2].eq(web3.utils.toBN(test.vComponents.cGamma.x)))
+        assert(params[1][3].eq(web3.utils.toBN(test.vComponents.cGamma.y)))
       })
     }
   })
