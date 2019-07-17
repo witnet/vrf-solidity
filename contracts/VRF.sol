@@ -129,6 +129,7 @@ contract VRF is Secp256k1 {
   /// @param _proof The VRF proof as an array composed of `[gamma-x, gamma-y, c, s]`
   /// @return The VRF proof as an array composed of `[gamma-x, gamma-y, c, s]`
   function decodeProof(bytes memory _proof) public pure returns (uint[4] memory) {
+    require(_proof.length == 81, "Malformed VRF proof");
     uint8 gammaSign;
     uint256 gammaX;
     uint128 c;
@@ -152,6 +153,7 @@ contract VRF is Secp256k1 {
   /// @param _point The EC point as bytes
   /// @return The point as `[point-x, point-y]`
   function decodePoint(bytes memory _point) public pure returns (uint[2] memory) {
+    require(_point.length == 33, "Malformed compressed EC point");
     uint8 sign;
     uint256 x;
     assembly {

@@ -43,6 +43,7 @@ contract Secp256k1 is EllipticCurve {
   /// @param _x The coordinate `x` of the point
   /// @return The coordinate `y` of the point
   function deriveY(uint8 _yByte, uint256 _x) public pure returns (uint256) {
+    require(_yByte == 0x02 || _yByte == 0x03, "Invalid compressed EC point prefix");
     uint256 y2 = addmod(mulmod(_x, mulmod(_x, _x, PP), PP), 7, PP);
     uint256 y = expMod(y2, (PP + 1) / 4, PP);
     y = (y + _yByte) % 2 == 0 ? y : PP - y;
