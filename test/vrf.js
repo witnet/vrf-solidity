@@ -80,9 +80,7 @@ contract("VRF", accounts => {
     })
     for (let [index, test] of data.verify.valid.entries()) {
       it(`should verify a VRF proof (${index + 1})`, async () => {
-        const publicKeyX = web3.utils.hexToBytes(test.publicKey.x)
-        const publicKeyY = web3.utils.hexToBytes(test.publicKey.y)
-        const publicKey = [publicKeyX, publicKeyY]
+        const publicKey = await vrf.decodePoint.call(web3.utils.hexToBytes(test.pub))
         const proof = await vrf.decodeProof.call(web3.utils.hexToBytes(test.pi))
         const message = web3.utils.hexToBytes(test.message)
         const result = await vrf.verify.call(publicKey, proof, message)
