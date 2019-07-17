@@ -38,14 +38,14 @@ contract Secp256k1 is EllipticCurve {
     );
   }
 
-  /// @dev Function to derive the `y` coordinate given the `x` coordinate and the parity byte.
-  /// @param _yBit The parity byte following the ec point compressed format
+  /// @dev Function to derive the `y` coordinate given the `x` coordinate and the parity byte (`0x03` odd `y` and `0x04` even `y`).
+  /// @param _yByte The parity byte following the ec point compressed format
   /// @param _x The coordinate `x` of the point
   /// @return The coordinate `y` of the point
-  function deriveY(uint8 _yBit, uint256 _x) public pure returns (uint256) {
+  function deriveY(uint8 _yByte, uint256 _x) public pure returns (uint256) {
     uint256 y2 = addmod(mulmod(_x, mulmod(_x, _x, PP), PP), 7, PP);
     uint256 y = expMod(y2, (PP + 1) / 4, PP);
-    y = (y + _yBit) % 2 == 0 ? y : PP - y;
+    y = (y + _yByte) % 2 == 0 ? y : PP - y;
 
     return y;
   }
