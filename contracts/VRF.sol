@@ -309,7 +309,7 @@ contract VRF is Secp256k1 {
     return abi.encodePacked(prefix, _x);
   }
 
-  /// @dev Substracts two key derivation functionsas `s1*A - s2*B`.
+  /// @dev Substracts two key derivation functionsas `s1*A - s2*B` using simultaneous multiplication.
   /// @param _scalar1 The scalar `s1`
   /// @param _a1 The `x` coordinate of point `A`
   /// @param _a2 The `y` coordinate of point `A`
@@ -326,17 +326,33 @@ contract VRF is Secp256k1 {
     uint256 _b2)
   internal pure returns (uint256, uint256)
   {
-    (uint256 m1, uint256 m2) = derivePoint(_scalar1, _a1, _a2);
-    (uint256 n1, uint256 n2) = derivePoint(_scalar2, _b1, _b2);
-    (uint256 r1, uint256 r2) = ecSub(
-      m1,
-      m2,
-      n1,
-      n2,
-      AA,
-      PP);
+    // Inverse (negative) the second scalar
+    uint256 scalar2 = (NN - _scalar2) % NN;
 
-    return (r1, r2);
+    // Decompose the scalars in two
+    (uint256 scalar2Dec1, uint256 scalar2Dec2) = roundedsplitDiv(scalar2);
+    (uint256 scalar1Dec1, uint256 scalar1Dec2) = roundedsplitDiv(_scalar1);
+
+    // Scalars vector
+    int256[4] memory scalarVec = [
+      int256(scalar1Dec1),
+      int256(scalar1Dec2),
+      int256(scalar2Dec1),
+      int256(scalar2Dec2)];
+    // Point vector [ax, ay, bx, by]
+    uint256[4] memory pointVec = [
+      _a1,
+      _a2,
+      _b1,
+      _b2];
+    // simultaneous multiplication (scalar1*A-scalar2*B)
+    uint256[3] memory result = simMul(scalarVec, pointVec);
+    //convert the result to Affine
+    return toAffine(
+      result[0],
+      result[1],
+      result[2],
+      PP);
   }
 
   /// @dev Verify an Elliptic Curve multiplication of the form `(qx,qy) = scalar*(x,y)` by using the precompiled `ecrecover` function.
