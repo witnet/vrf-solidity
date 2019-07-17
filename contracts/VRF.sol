@@ -85,13 +85,13 @@ contract VRF is Secp256k1 {
       _publicKey[0],
       _publicKey[1],
       _uPoint[0],
-      _uPoint[1]) &&
+      _uPoint[1]) ||
       !ecMulVerify(
         _proof[3],
         hPoint[0],
         hPoint[1],
         _vComponents[0],
-        _vComponents[1]) &&
+        _vComponents[1]) ||
       !ecMulVerify(
         _proof[2],
         _proof[0],
