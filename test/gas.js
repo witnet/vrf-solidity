@@ -1,5 +1,5 @@
 const VRFTestHelper = artifacts.require("VRFTestHelper")
-const testdata = require("./testdata.json")
+const data = require("./data.json")
 
 contract("VRFTestHelper - Gas consumption analysis", accounts => {
   describe("VRF verification functions:", () => {
@@ -8,7 +8,7 @@ contract("VRFTestHelper - Gas consumption analysis", accounts => {
       helper = await VRFTestHelper.new()
     })
     it("verify()", async () => {
-      for (let test of testdata.verify.valid) {
+      for (let test of data.verify.valid) {
         const publicKeyX = web3.utils.hexToBytes(test.publicKey.x)
         const publicKeyY = web3.utils.hexToBytes(test.publicKey.y)
         const publicKey = [publicKeyX, publicKeyY]
@@ -18,7 +18,7 @@ contract("VRFTestHelper - Gas consumption analysis", accounts => {
       }
     })
     it("fastVerify()", async () => {
-      for (let test of testdata.fastVerify.valid) {
+      for (let test of data.fastVerify.valid) {
         // Standard inputs
         const proof = await helper.decodeProof.call(web3.utils.hexToBytes(test.pi))
         const publicKeyX = web3.utils.hexToBytes(test.publicKey.x)
@@ -53,17 +53,17 @@ contract("VRFTestHelper - Gas consumption analysis", accounts => {
       gas = await VRFTestHelper.new()
     })
     it("decodeProof()", async () => {
-      for (let proof of testdata.proofs.valid) {
+      for (let proof of data.proofs.valid) {
         await gas._decodeProof(web3.utils.hexToBytes(proof.pi))
       }
     })
     it("decodePoint()", async () => {
-      for (let point of testdata.points.valid) {
+      for (let point of data.points.valid) {
         await gas._decodePoint(web3.utils.hexToBytes(point.compressed))
       }
     })
     it("computeFastVerifyParams()", async () => {
-      for (let test of testdata.fastVerify.valid) {
+      for (let test of data.fastVerify.valid) {
         const publicKeyX = web3.utils.hexToBytes(test.publicKey.x)
         const publicKeyY = web3.utils.hexToBytes(test.publicKey.y)
         const publicKey = [publicKeyX, publicKeyY]
