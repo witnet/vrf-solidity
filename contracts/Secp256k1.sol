@@ -38,7 +38,7 @@ contract Secp256k1 is EllipticCurve {
     );
   }
 
-  /// @dev Function to derive the `y` coordinate given the `x` coordinate and the parity byte (`0x03` odd `y` and `0x04` even `y`).
+  /// @dev Function to derive the `y` coordinate given the `x` coordinate and the parity byte (`0x03` for odd `y` and `0x04` for even `y`).
   /// @param _yByte The parity byte following the ec point compressed format
   /// @param _x The coordinate `x` of the point
   /// @return The coordinate `y` of the point

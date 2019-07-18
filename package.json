@@ -1,7 +1,7 @@
 {
   "name": "vrf-solidity",
   "version": "0.1.0",
-  "description": "Verifiable Random Function (VRF) library written in Solidty",
+  "description": "Verifiable Random Function (VRF) library written in Solidity",
   "main": "",
   "scripts": {
     "test": "truffle test",
@@ -9,13 +9,14 @@
     "console": "truffle console",
     "postinstall": "npm run compile-contracts",
     "compile-contracts": "truffle compile --all",
-    "fmt": "solium -d contracts && eslint ./test",
-    "fmt!": "solium -d contracts --fix && eslint ./test --fix",
+    "fmt": "solium -d contracts && eslint ./test ./benchmark",
+    "fmt!": "solium -d contracts --fix && eslint ./test ./benchmark --fix",
     "solium": "solium -d contracts",
     "solium:fix": "solium -d contracts --fix",
     "lint": "eslint ./test",
     "lint:fix": "eslint ./test --fix",
-    "coverage": "solidity-coverage"
+    "coverage": "solidity-coverage",
+    "gas-analysis": "truffle test ./benchmark/VRFGasHelper.sol ./benchmark/gas.js"
   },
   "author": "Witnet Foundation <info@witnet.foundation>",
   "repository": {
@@ -23,9 +24,13 @@
     "url": "https://github.com/witnet/vrf-solidity.git"
   },
   "keywords": [
-    "bridge",
+    "cryptography",
+    "ethereum",
     "witnet",
-    "ethereum"
+    "solidity",
+    "vrf",
+    "secp256k1",
+    "ecc"
   ],
   "license": "MIT",
   "dependencies": {

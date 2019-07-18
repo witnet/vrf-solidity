@@ -16,7 +16,8 @@ It provides two main `pure` functions for verifying VRF proofs:
     - *_message*: The message (in bytes) used for computing the VRF
   - _Output_:
     - true, if VRF proof is valid
-- **fastVerify** (low gas consumption): VRF *fast* verification by providing additional EC points. It uses the `ecrecover` precompiled function to verify EC multiplications.
+- **fastVerify**:
+  - _Description_: VRF *fast* verification by providing additional EC points. It uses the `ecrecover` precompiled function to verify EC multiplications (lower gas consumption).
   - _Inputs_:
     - *_publicKey*: The public key as an array composed of `[pubKey-x, pubKey-y]`
     - *_proof*: The VRF proof as an array composed of `[gamma-x, gamma-y, c, s]`
@@ -93,34 +94,35 @@ The three auxiliary public functions (`decodeProof`, `decodePoint` and `computeF
 Gas consumption and USD price estimation with a gas price of 20 Gwei, derived from [ETH Gas Station](https://ethgasstation.info/):
 
 ```
-·----------------------------------------------|---------------------------|-------------|----------------------------·
-|     Solc version: 0.5.8+commit.23d335f2      ·  Optimizer enabled: true  ·  Runs: 200  ·  Block limit: 6721975 gas  │
-···············································|···························|·············|·····························
-|  Methods                                     ·               20 gwei/gas               ·       200.81 usd/eth       │
-··················|····························|·············|·············|·············|··············|··············
-|  Contract       ·  Method                    ·  Min        ·  Max        ·  Avg        ·  # calls     ·  usd (avg)  │
-··················|····························|·············|·············|·············|··············|··············
-|  VRFTestHelper  ·  _computeFastVerifyParams  ·          -  ·          -  ·    1788393  ·           1  ·       7.18  │
-··················|····························|·············|·············|·············|··············|··············
-|  VRFTestHelper  ·  _decodePoint              ·      57787  ·      57829  ·      57801  ·           3  ·       0.23  │
-··················|····························|·············|·············|·············|··············|··············
-|  VRFTestHelper  ·  _decodeProof              ·          -  ·          -  ·      61206  ·           2  ·       0.25  │
-··················|····························|·············|·············|·············|··············|··············
-|  VRFTestHelper  ·  _fastVerify               ·          -  ·          -  ·     161986  ·           1  ·       0.65  │
-··················|····························|·············|·············|·············|··············|··············
-|  VRFTestHelper  ·  _verify                   ·          -  ·          -  ·    1845177  ·           2  ·       7.41  │
-··················|····························|·············|·············|·············|··············|··············
-|  Deployments                                 ·                                         ·  % of limit  ·             │
-···············································|·············|·············|·············|··············|··············
-|  VRFTestHelper                               ·          -  ·          -  ·    2723883  ·      40.5 %  ·      10.94  │
-·----------------------------------------------|-------------|-------------|-------------|--------------|-------------·
+·---------------------------------------------|---------------------------|-------------|----------------------------·
+|     Solc version: 0.5.8+commit.23d335f2     ·  Optimizer enabled: true  ·  Runs: 200  ·  Block limit: 6721975 gas  │
+··············································|···························|·············|·····························
+|  Methods                                    ·               20 gwei/gas               ·       216.60 usd/eth       │
+·················|····························|·············|·············|·············|··············|··············
+|  Contract      ·  Method                    ·  Min        ·  Max        ·  Avg        ·  # calls     ·  usd (avg)  │
+·················|····························|·············|·············|·············|··············|··············
+|  VRFGasHelper  ·  _computeFastVerifyParams  ·    1715845  ·    2034977  ·    1816808  ·          91  ·       7.87  │
+·················|····························|·············|·············|·············|··············|··············
+|  VRFGasHelper  ·  _decodePoint              ·      57742  ·      57784  ·      57771  ·          10  ·       0.25  │
+·················|····························|·············|·············|·············|··············|··············
+|  VRFGasHelper  ·  _decodeProof              ·      61164  ·      61228  ·      61204  ·          10  ·       0.27  │
+·················|····························|·············|·············|·············|··············|··············
+|  VRFGasHelper  ·  _fastVerify               ·     157918  ·     401214  ·     202098  ·          93  ·       0.88  │
+·················|····························|·············|·············|·············|··············|··············
+|  VRFGasHelper  ·  _verify                   ·    1771003  ·    2090855  ·    1873289  ·          92  ·       8.12  │
+·················|····························|·············|·············|·············|··············|··············
+|  Deployments                                ·                                         ·  % of limit  ·             │
+··············································|·············|·············|·············|··············|··············
+|  VRFGasHelper                               ·          -  ·          -  ·    2486186  ·        37 %  ·      10.77  │
+·---------------------------------------------|-------------|-------------|-------------|--------------|-------------·
 ```
 
 ## Test Vectors
 
-Despite being a work in progress, the following resource has been used for the `Secp256k1` test vectors:
+The following resources have been used for test vectors:
 
-- [Chuck Batson](https://chuckbatson.wordpress.com/2014/11/26/secp256k1-test-vectors/)
+- `Secp256k1`: [Chuck Batson](https://chuckbatson.wordpress.com/2014/11/26/secp256k1-test-vectors/)
+- VRF with ciphersuite `SECP256K1_SHA256_TAI`: [vrf-rs](https://github.com/witnet/vrf-rs/)
 
 ## Acknowledgements
 
