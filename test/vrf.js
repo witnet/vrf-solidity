@@ -18,8 +18,8 @@ contract("VRF", accounts => {
         assert(decodedProof[3].eq(web3.utils.toBN(test.s)))
       })
     }
-    for (let [index, test] of data.proofs.invalid.entries()) {
-      it(`should not decode a malformed VRF proof from bytes (${index + 1}) - ${test.description}`, async () => {
+    for (let [, test] of data.proofs.invalid.entries()) {
+      it(`should fail to decode a VRF proof from bytes if malformed (${test.description})`, async () => {
         await truffleAssert.reverts(vrf.decodeProof.call(web3.utils.hexToBytes(test.pi)), test.revert)
       })
     }
@@ -30,8 +30,8 @@ contract("VRF", accounts => {
         assert(coord[1].eq(web3.utils.toBN(test.uncompressed.y)))
       })
     }
-    for (let [index, test] of data.points.invalid.entries()) {
-      it(`should not decode a malformed compressed EC Point (${index + 1}) - ${test.description}`, async () => {
+    for (let [, test] of data.points.invalid.entries()) {
+      it(`should fail to decode a compressed EC Point if malformed (${test.description})`, async () => {
         await truffleAssert.reverts(vrf.decodePoint.call(web3.utils.hexToBytes(test.compressed)), test.revert)
       })
     }
@@ -51,8 +51,8 @@ contract("VRF", accounts => {
         assert(params[1][3].eq(web3.utils.toBN(test.vComponents.cGamma.y)))
       })
     }
-    for (let [index, test] of data.computeFastVerifyParams.invalid.entries()) {
-      it(`should not compute fast verify parameters (${index + 1}) - ${test.description}`, async () => {
+    for (let [, test] of data.computeFastVerifyParams.invalid.entries()) {
+      it(`should fail to compute fast verify parameters (${test.description})`, async () => {
         const publicKeyX = web3.utils.hexToBytes(test.publicKey.x)
         const publicKeyY = web3.utils.hexToBytes(test.publicKey.y)
         const publicKey = [publicKeyX, publicKeyY]
@@ -87,8 +87,8 @@ contract("VRF", accounts => {
         assert.equal(result, true)
       })
     }
-    for (let [index, test] of data.verify.invalid.entries()) {
-      it(`should not verify a VRF proof (${index + 1}) - ${test.description}`, async () => {
+    for (let [, test] of data.verify.invalid.entries()) {
+      it(`should return false when verifying an invalid VRF proof (${test.description})`, async () => {
         const publicKeyX = web3.utils.hexToBytes(test.publicKey.x)
         const publicKeyY = web3.utils.hexToBytes(test.publicKey.y)
         const publicKey = [publicKeyX, publicKeyY]
@@ -128,8 +128,8 @@ contract("VRF", accounts => {
         assert.equal(res, true)
       })
     }
-    for (let [index, test] of data.fastVerify.invalid.entries()) {
-      it(`should not fast verify an invalid VRF proof (${index + 1}) - ${test.description}`, async () => {
+    for (let [, test] of data.fastVerify.invalid.entries()) {
+      it(`should return false when fast verifying an invalid VRF proof (${test.description})`, async () => {
         // Standard inputs
         const proof = await vrf.decodeProof.call(web3.utils.hexToBytes(test.pi))
         const publicKeyX = web3.utils.hexToBytes(test.publicKey.x)

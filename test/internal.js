@@ -7,8 +7,8 @@ contract("VRFTestHelper - internals", accounts => {
     before(async () => {
       helper = await VRFTestHelper.new()
     })
-    for (let [index, test] of data.hashToTryAndIncrement.valid.entries()) {
-      it(`Hash to Try And Increment (TAI) (${index + 1}) - (${test.description})`, async () => {
+    for (let [, test] of data.hashToTryAndIncrement.valid.entries()) {
+      it(`Hash to Try And Increment (TAI) (${test.description})`, async () => {
         const publicKeyX = web3.utils.hexToBytes(test.publicKey.x)
         const publicKeyY = web3.utils.hexToBytes(test.publicKey.y)
         const publicKey = [publicKeyX, publicKeyY]
