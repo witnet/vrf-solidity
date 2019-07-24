@@ -12,6 +12,23 @@ import "./Secp256k1.sol";
  */
 contract VRF is Secp256k1 {
 
+  /// @dev Computes the VRF hash output as result of the digest of a ciphersuite-dependent prefix
+  /// concatenated with the gamma point
+  /// @param _gammaX The x-coordinate of the gamma EC point
+  /// @param _gammaY The y-coordinate of the gamma EC point
+  /// @return The VRF hash ouput as shas256 digest
+  function gammaToHash(uint256 _gammaX, uint256 _gammaY) public pure returns (bytes32) {
+    bytes memory c = abi.encodePacked(
+      // Cipher suite code (SECP256K1-SHA256-TAI is 0xFE)
+      uint8(0xFE),
+      // 0x01
+      uint8(0x03),
+      // Compressed Gamma Point
+      encodePoint(_gammaX, _gammaY));
+
+    return sha256(c);
+  }
+
   /// @dev VRF verification by providing the public key, the message and the VRF proof.
   /// This function computes several elliptic curve operations which may lead to extensive gas consumption.
   /// @param _publicKey The public key as an array composed of `[pubKey-x, pubKey-y]`
@@ -262,11 +279,11 @@ contract VRF is Secp256k1 {
   internal pure returns (bytes16)
   {
     bytes memory c = abi.encodePacked(
-    // Ciphersuite 0xFE
+      // Ciphersuite 0xFE
       uint8(254),
-    // Prefix 0x02
+      // Prefix 0x02
       uint8(2),
-    // Points to Bytes
+      // Points to Bytes
       encodePoint(_hPointX, _hPointY),
       encodePoint(_gammaX, _gammaY),
       encodePoint(_uPointX, _uPointY),
