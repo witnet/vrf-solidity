@@ -49,6 +49,13 @@ Additionally, the library provides some auxiliary `pure` functions to facilitate
     - *_message*: The message (in bytes) used for computing the VRF
   - _Output_:
     - The fast verify required parameters as the tuple `([uPointX, uPointY], [sHX, sHY, cGammaX, cGammaY])`
+- **gammaToHash**:
+  - _Description_: Computes the VRF hash output as result of the digest of a ciphersuite-dependent prefix concatenated with the gamma point. This hash can be used for deterministically generating verifiable pseudorandom numbers.
+  - _Inputs_:
+    - *_gammaX*: The x-coordinate of the gamma EC point
+    - *_gammaY*: The y-coordinate of the gamma EC point
+  - _Output_:
+    - The VRF hash ouput as shas256 digest
 
 ## Elliptic Curve VRF (using `Secp256k1`)
 
@@ -97,23 +104,25 @@ Gas consumption and USD price estimation with a gas price of 20 Gwei, derived fr
 ·---------------------------------------------|---------------------------|-------------|----------------------------·
 |     Solc version: 0.5.8+commit.23d335f2     ·  Optimizer enabled: true  ·  Runs: 200  ·  Block limit: 6721975 gas  │
 ··············································|···························|·············|·····························
-|  Methods                                    ·               20 gwei/gas               ·       216.60 usd/eth       │
+|  Methods                                    ·               20 gwei/gas               ·       214.23 usd/eth       │
 ·················|····························|·············|·············|·············|··············|··············
 |  Contract      ·  Method                    ·  Min        ·  Max        ·  Avg        ·  # calls     ·  usd (avg)  │
 ·················|····························|·············|·············|·············|··············|··············
-|  VRFGasHelper  ·  _computeFastVerifyParams  ·    1715845  ·    2034977  ·    1816808  ·          91  ·       7.87  │
+|  VRFGasHelper  ·  _computeFastVerifyParams  ·    1708998  ·    2031758  ·    1810590  ·          91  ·       7.76  │
 ·················|····························|·············|·············|·············|··············|··············
-|  VRFGasHelper  ·  _decodePoint              ·      57742  ·      57784  ·      57771  ·          10  ·       0.25  │
+|  VRFGasHelper  ·  _decodePoint              ·      57917  ·      57950  ·      57940  ·          10  ·       0.25  │
 ·················|····························|·············|·············|·············|··············|··············
-|  VRFGasHelper  ·  _decodeProof              ·      61164  ·      61228  ·      61204  ·          10  ·       0.27  │
+|  VRFGasHelper  ·  _decodeProof              ·      61339  ·      61403  ·      61377  ·          10  ·       0.26  │
 ·················|····························|·············|·············|·············|··············|··············
-|  VRFGasHelper  ·  _fastVerify               ·     157918  ·     401214  ·     202098  ·          93  ·       0.88  │
+|  VRFGasHelper  ·  _fastVerify               ·     126337  ·     372819  ·     170622  ·          94  ·       0.73  │
 ·················|····························|·············|·············|·············|··············|··············
-|  VRFGasHelper  ·  _verify                   ·    1771003  ·    2090855  ·    1873289  ·          92  ·       8.12  │
+|  VRFGasHelper  ·  _gammaToHash              ·      27780  ·      27844  ·      27827  ·          91  ·       0.12  │
+·················|····························|·············|·············|·············|··············|··············
+|  VRFGasHelper  ·  _verify                   ·    1739431  ·    2062941  ·    1842349  ·          92  ·       7.89  │
 ·················|····························|·············|·············|·············|··············|··············
 |  Deployments                                ·                                         ·  % of limit  ·             │
 ··············································|·············|·············|·············|··············|··············
-|  VRFGasHelper                               ·          -  ·          -  ·    2486186  ·        37 %  ·      10.77  │
+|  VRFGasHelper                               ·          -  ·          -  ·    2543820  ·      37.9 %  ·      10.90  │
 ·---------------------------------------------|-------------|-------------|-------------|--------------|-------------·
 ```
 
