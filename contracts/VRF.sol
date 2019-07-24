@@ -267,28 +267,17 @@ contract VRF is Secp256k1 {
     uint256 _vPointY)
   internal pure returns (bytes16)
   {
-    bytes memory c = new bytes(134);
+    bytes memory c = abi.encodePacked(
     // Ciphersuite 0xFE
-    c[0] = byte(uint8(254));
+      uint8(254),
     // Prefix 0x02
-    c[1] = byte(uint8(2));
+      uint8(2),
     // Points to Bytes
-    bytes memory hBytes = encodePoint(_hPointX, _hPointY);
-    for (uint i = 0; i < hBytes.length; i++) {
-      c[2+i] = hBytes[i];
-    }
-    bytes memory gammaBytes = encodePoint(_gammaX, _gammaY);
-    for (uint i = 0; i < gammaBytes.length; i++) {
-      c[35+i] = gammaBytes[i];
-    }
-    bytes memory uBytes = encodePoint(_uPointX, _uPointY);
-    for (uint i = 0; i < uBytes.length; i++) {
-      c[68+i] = uBytes[i];
-    }
-    bytes memory vBytes = encodePoint(_vPointX, _vPointY);
-    for (uint i = 0; i < vBytes.length; i++) {
-      c[101+i] = vBytes[i];
-    }
+      encodePoint(_hPointX, _hPointY),
+      encodePoint(_gammaX, _gammaY),
+      encodePoint(_uPointX, _uPointY),
+      encodePoint(_vPointX, _vPointY)
+    );
     // Hash bytes and truncate
     bytes32 sha = sha256(c);
     bytes16 half1;
