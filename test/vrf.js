@@ -159,4 +159,17 @@ contract("VRF", accounts => {
       })
     }
   })
+  describe("VRF hash output function: ", () => {
+    let vrf
+    before(async () => {
+      vrf = await VRF.deployed()
+    })
+    for (let [index, test] of data.verify.valid.entries()) {
+      it(`should generate hash output from VRF proof (${index + 1})`, async () => {
+        const proof = await vrf.decodeProof.call(web3.utils.hexToBytes(test.pi))
+        const hash = await vrf.gammaToHash.call(proof[0], proof[1])
+        assert.equal(hash, test.hash)
+      })
+    }
+  })
 })
