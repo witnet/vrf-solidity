@@ -203,30 +203,24 @@ contract VRF is Secp256k1 {
   /// @param _message The message used for computing the VRF
   /// @return The hash point in affine cooridnates
   function hashToTryAndIncrement(uint256[2] memory _publicKey, bytes memory _message) internal pure returns (uint, uint) {
-    // Prepare bytes
-    uint cLength = 2 + 33 + _message.length + 1;
-    bytes memory c = new bytes(cLength);
-
     // Step 1: public key to bytes
-    bytes memory pkBytes = encodePoint(_publicKey[0], _publicKey[1]);
-
     // Step 2: V = cipher_suite | 0x01 | public_key_bytes | message | ctr
-    // Ciphersuite code for SECP256K1-SHA256-TAI is 0xFE
-    c[0] = byte(uint8(254));
-    c[1] = byte(uint8(1));
-    for (uint i = 0; i < pkBytes.length; i++) {
-      c[2+i] = pkBytes[i];
-    }
-    for (uint i = 0; i < _message.length; i++) {
-      c[35+i] = _message[i];
-    }
+    bytes memory c = abi.encodePacked(
+      // Cipher suite code (SECP256K1-SHA256-TAI is 0xFE)
+      uint8(254),
+      // 0x01
+      uint8(1),
+      // Public Key
+      encodePoint(_publicKey[0], _publicKey[1]),
+      // Message
+      _message);
 
     // Step 3: find a valid EC point
     // Loop over counter ctr starting at 0x00 and do hash
     for (uint8 ctr = 0; ctr < 256; ctr++) {
       // Counter update
-      c[cLength-1] = byte(ctr);
-      bytes32 sha = sha256(c);
+      // c[cLength-1] = byte(ctr);
+      bytes32 sha = sha256(abi.encodePacked(c, ctr));
       // Step 4: arbitraty string to point and check if it is on curve
       uint hPointX = uint256(sha);
       uint hPointY = deriveY(2, hPointX);
