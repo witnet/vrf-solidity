@@ -59,6 +59,12 @@ contract("VRFGasHelper - Gas consumption analysis", accounts => {
         )
       })
     }
+    for (let [index, test] of data.verify.valid.entries()) {
+      it(`gammaToHash() (${index + 1})`, async () => {
+        const proof = await helper.decodeProof.call(web3.utils.hexToBytes(test.pi))
+        await helper._gammaToHash(proof[0], proof[1])
+      })
+    }
   })
   describe("VRF auxiliary public functions:", () => {
     let helper

@@ -12,6 +12,10 @@ import "../contracts/VRF.sol";
  */
 contract VRFGasHelper is VRF {
 
+  function _gammaToHash(uint256 gammaX, uint256 gammaY) public returns (bytes32) {
+    return gammaToHash(gammaX, gammaY);
+  }
+
   function _verify(
     uint256[2] memory _publicKey,
     uint256[4] memory _proof,
