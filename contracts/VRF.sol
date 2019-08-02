@@ -12,66 +12,6 @@ import "./Secp256k1.sol";
  */
 contract VRF is Secp256k1 {
 
-  /// @dev Computes the VRF hash output as result of the digest of a ciphersuite-dependent prefix
-  /// concatenated with the gamma point
-  /// @param _gammaX The x-coordinate of the gamma EC point
-  /// @param _gammaY The y-coordinate of the gamma EC point
-  /// @return The VRF hash ouput as shas256 digest
-  function gammaToHash(uint256 _gammaX, uint256 _gammaY) public pure returns (bytes32) {
-    bytes memory c = abi.encodePacked(
-      // Cipher suite code (SECP256K1-SHA256-TAI is 0xFE)
-      uint8(0xFE),
-      // 0x01
-      uint8(0x03),
-      // Compressed Gamma Point
-      encodePoint(_gammaX, _gammaY));
-
-    return sha256(c);
-  }
-
-  /// @dev VRF verification by providing the public key, the message and the VRF proof.
-  /// This function computes several elliptic curve operations which may lead to extensive gas consumption.
-  /// @param _publicKey The public key as an array composed of `[pubKey-x, pubKey-y]`
-  /// @param _proof The VRF proof as an array composed of `[gamma-x, gamma-y, c, s]`
-  /// @param _message The message (in bytes) used for computing the VRF
-  /// @return true, if VRF proof is valid
-  function verify(uint256[2] memory _publicKey, uint256[4] memory _proof, bytes memory _message) public pure returns (bool) {
-    // Step 2: Hash to try and increment (outputs a hashed value, a finite EC point in G)
-    uint256[2] memory hPoint;
-    (hPoint[0], hPoint[1]) = hashToTryAndIncrement(_publicKey, _message);
-
-    // Step 3: U = s*B - c*Y (where B is the generator)
-    (uint256 uPointX, uint256 uPointY) = ecMulSubMul(
-      _proof[3],
-      GX,
-      GY,
-      _proof[2],
-      _publicKey[0],
-      _publicKey[1]);
-
-    // Step 4: V = s*H - c*Gamma
-    (uint256 vPointX, uint256 vPointY) = ecMulSubMul(
-      _proof[3],
-      hPoint[0],
-      hPoint[1],
-      _proof[2],
-      _proof[0],_proof[1]);
-
-    // Step 5: derived c from hash points(...)
-    bytes16 derivedC = hashPoints(
-      hPoint[0],
-      hPoint[1],
-      _proof[0],
-      _proof[1],
-      uPointX,
-      uPointY,
-      vPointX,
-      vPointY);
-
-    // Step 6: Check validity c == c'
-    return uint128(derivedC) == _proof[2];
-  }
-
   /// @dev VRF fast verification by providing the public key, the message, the VRF proof and several intermediate elliptic curve points that enable the verification shortcut.
   /// This function leverages the EVM's `ecrecover` precompile to verify elliptic curve multiplications by decreasing the security from 32 to 20 bytes.
   /// Based on the original idea of Vitalik Buterin: https://ethresear.ch/t/you-can-kinda-abuse-ecrecover-to-do-ecmul-in-secp256k1-today/2384/9
