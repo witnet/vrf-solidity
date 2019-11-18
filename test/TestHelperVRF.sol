@@ -10,7 +10,7 @@ import "../contracts/VRF.sol";
  * 2. Removal of the `pure` modifier to allow gas consumption analysis
  * @author Witnet Foundation
  */
-contract VRFTestHelper is VRF {
+contract TestHelperVRF is VRF {
 
   function _hashToTryAndIncrement(uint256[2] memory _publicKey, bytes memory _message) public pure returns (uint, uint) {
     return hashToTryAndIncrement(_publicKey, _message);
