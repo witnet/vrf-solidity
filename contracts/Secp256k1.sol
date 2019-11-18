@@ -8,7 +8,7 @@ import "elliptic-curve-solidity/contracts/EllipticCurve.sol";
  * @dev Secp256k1 Elliptic Curve supporting point derivation function.
  * @author Witnet Foundation
  */
-contract Secp256k1 is EllipticCurve {
+contract Secp256k1 {
 
   // Generator coordinate `x` of EC equation
   uint256 constant GX = 0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798;
@@ -29,7 +29,7 @@ contract Secp256k1 is EllipticCurve {
   /// @param _y The coordinate y
   /// @return (qx, qy) The derived point
   function derivePoint(uint256 _d, uint256 _x, uint256 _y) public pure returns(uint256 qx, uint256 qy) {
-    (qx, qy) = ecMul(
+    (qx, qy) = EllipticCurve.ecMul(
       _d,
       _x,
       _y,
@@ -45,7 +45,7 @@ contract Secp256k1 is EllipticCurve {
   function deriveY(uint8 _yByte, uint256 _x) public pure returns (uint256) {
     require(_yByte == 0x02 || _yByte == 0x03, "Invalid compressed EC point prefix");
 
-    return deriveY(
+    return EllipticCurve.deriveY(
       _yByte,
       _x,
       AA,

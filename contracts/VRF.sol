@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-import "./Secp256k1.sol";
+import "elliptic-curve-solidity/contracts/EllipticCurve.sol";
 
 
 /**
@@ -10,7 +10,52 @@ import "./Secp256k1.sol";
  * It supports the _SECP256K1_SHA256_TAI_ cipher suite, i.e. the aforementioned algorithms using `SHA256` and the `Secp256k1` curve.
  * @author Witnet Foundation
  */
-contract VRF is Secp256k1 {
+contract VRF {
+
+  /**
+   * Secp256k1 parameters
+   */
+
+  // Generator coordinate `x` of EC equation
+  uint256 constant GX = 0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798;
+  // Generator coordinate `y` of EC equation
+  uint256 constant GY = 0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8;
+  // Constant `a` of EC equation
+  uint256 constant AA = 0;
+  // Constant `B` of EC equation
+  uint256 constant BB = 7;
+  // Prime number of the curve
+  uint256 constant PP = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F;
+  // Order of the curve
+  uint256 constant NN = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141;
+
+  /// @dev Public key derivation from private key.
+  /// @param _d The scalar
+  /// @param _x The coordinate x
+  /// @param _y The coordinate y
+  /// @return (qx, qy) The derived point
+  function derivePoint(uint256 _d, uint256 _x, uint256 _y) public pure returns(uint256 qx, uint256 qy) {
+    (qx, qy) = EllipticCurve.ecMul(
+      _d,
+      _x,
+      _y,
+      AA,
+      PP
+    );
+  }
+
+  /// @dev Function to derive the `y` coordinate given the `x` coordinate and the parity byte (`0x03` for odd `y` and `0x04` for even `y`).
+  /// @param _yByte The parity byte following the ec point compressed format
+  /// @param _x The coordinate `x` of the point
+  /// @return The coordinate `y` of the point
+  function deriveY(uint8 _yByte, uint256 _x) public pure returns (uint256) {
+    return EllipticCurve.deriveY(
+      _yByte,
+      _x,
+      AA,
+      BB,
+      PP);
+  }
 
   /// @dev Computes the VRF hash output as result of the digest of a ciphersuite-dependent prefix
   /// concatenated with the gamma point
@@ -119,7 +164,7 @@ contract VRF is Secp256k1 {
     {
       return false;
     }
-    (uint256 vPointX, uint256 vPointY) = ecSub(
+    (uint256 vPointX, uint256 vPointY) = EllipticCurve.ecSub(
       _vComponents[0],
       _vComponents[1],
       _vComponents[2],
@@ -241,7 +286,7 @@ contract VRF is Secp256k1 {
       // Step 4: arbitraty string to point and check if it is on curve
       uint hPointX = uint256(sha);
       uint hPointY = deriveY(2, hPointX);
-      if (isOnCurve(
+      if (EllipticCurve.isOnCurve(
         hPointX,
         hPointY,
         AA,
@@ -330,7 +375,7 @@ contract VRF is Secp256k1 {
   {
     (uint256 m1, uint256 m2) = derivePoint(_scalar1, _a1, _a2);
     (uint256 n1, uint256 n2) = derivePoint(_scalar2, _b1, _b2);
-    (uint256 r1, uint256 r2) = ecSub(
+    (uint256 r1, uint256 r2) = EllipticCurve.ecSub(
       m1,
       m2,
       n1,
