@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-import "vrf-solidity/contracts/VRF.sol";
+import "../contracts/VRF.sol";
 
 
 /**
@@ -12,11 +12,11 @@ import "vrf-solidity/contracts/VRF.sol";
  */
 contract VRFGasHelper {
 
-  function _gammaToHash(uint256 gammaX, uint256 gammaY) public returns (bytes32) {
+  function gammaToHash(uint256 gammaX, uint256 gammaY) public returns (bytes32) {
     return VRF.gammaToHash(gammaX, gammaY);
   }
 
-  function _verify(
+  function verify(
     uint256[2] memory _publicKey,
     uint256[4] memory _proof,
     bytes memory _message)
@@ -25,7 +25,7 @@ contract VRFGasHelper {
     return VRF.verify(_publicKey, _proof, _message);
   }
 
-  function _fastVerify(
+  function fastVerify(
     uint256[2] memory _publicKey,
     uint256[4] memory _proof,
     bytes memory _message,
@@ -41,15 +41,15 @@ contract VRFGasHelper {
       _vComponents);
   }
 
-  function _decodeProof(bytes memory _proof) public returns (uint[4] memory) {
+  function decodeProof(bytes memory _proof) public returns (uint[4] memory) {
     return VRF.decodeProof(_proof);
   }
 
-  function _decodePoint(bytes memory _point) public returns (uint[2] memory) {
+  function decodePoint(bytes memory _point) public returns (uint[2] memory) {
     return VRF.decodePoint(_point);
   }
 
-  function _computeFastVerifyParams(
+  function computeFastVerifyParams(
     uint256[2] memory _publicKey,
     uint256[4] memory _proof,
     bytes memory _message)

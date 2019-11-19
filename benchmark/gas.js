@@ -1,4 +1,3 @@
-const EllipticCurve = artifacts.require("elliptic-curve-solidity/contracts/EllipticCurve.sol")
 const VRFGasHelper = artifacts.require("VRFGasHelper")
 const data = require("../test/data.json")
 
@@ -6,8 +5,6 @@ contract("VRFGasHelper - Gas consumption analysis", accounts => {
   describe("VRF verification functions:", () => {
     let helper
     before(async () => {
-      EllipticCurve.deployed()
-      VRFGasHelper.link(EllipticCurve)
       helper = await VRFGasHelper.new()
     })
     for (const [index, test] of data.verify.valid.entries()) {
@@ -15,7 +12,7 @@ contract("VRFGasHelper - Gas consumption analysis", accounts => {
         const publicKey = await helper.decodePoint.call(web3.utils.hexToBytes(test.pub))
         const proof = await helper.decodeProof.call(web3.utils.hexToBytes(test.pi))
         const message = web3.utils.hexToBytes(test.message)
-        await helper._verify(publicKey, proof, message)
+        await helper.verify(publicKey, proof, message)
       })
     }
     it("fastVerify() (1)", async () => {
@@ -38,7 +35,7 @@ contract("VRFGasHelper - Gas consumption analysis", accounts => {
         const vProof2X = web3.utils.toBN(test.vComponents.cGamma.x)
         const vProof2Y = web3.utils.toBN(test.vComponents.cGamma.y)
         // Check
-        await helper._fastVerify(
+        await helper.fastVerify(
           publicKey,
           proof,
           message,
@@ -53,7 +50,7 @@ contract("VRFGasHelper - Gas consumption analysis", accounts => {
         const proof = await helper.decodeProof.call(web3.utils.hexToBytes(test.pi))
         const message = web3.utils.hexToBytes(test.message)
         const params = await helper.computeFastVerifyParams.call(publicKey, proof, message)
-        await helper._fastVerify(
+        await helper.fastVerify(
           publicKey,
           proof,
           message,
@@ -65,7 +62,7 @@ contract("VRFGasHelper - Gas consumption analysis", accounts => {
     for (const [index, test] of data.verify.valid.entries()) {
       it(`gammaToHash() (${index + 1})`, async () => {
         const proof = await helper.decodeProof.call(web3.utils.hexToBytes(test.pi))
-        await helper._gammaToHash(proof[0], proof[1])
+        await helper.gammaToHash(proof[0], proof[1])
       })
     }
   })
@@ -76,12 +73,12 @@ contract("VRFGasHelper - Gas consumption analysis", accounts => {
     })
     for (const [index, test] of data.proofs.valid.entries()) {
       it(`decodeProof() (${index + 1})`, async () => {
-        await helper._decodeProof(web3.utils.hexToBytes(test.pi))
+        await helper.decodeProof(web3.utils.hexToBytes(test.pi))
       })
     }
     for (const [index, test] of data.points.valid.entries()) {
       it(`decodePoint() (${index + 1})`, async () => {
-        await helper._decodePoint(web3.utils.hexToBytes(test.compressed))
+        await helper.decodePoint(web3.utils.hexToBytes(test.compressed))
       })
     }
     for (const [index, test] of data.verify.valid.entries()) {
@@ -89,7 +86,7 @@ contract("VRFGasHelper - Gas consumption analysis", accounts => {
         const publicKey = await helper.decodePoint.call(web3.utils.hexToBytes(test.pub))
         const proof = await helper.decodeProof.call(web3.utils.hexToBytes(test.pi))
         const message = web3.utils.hexToBytes(test.message)
-        await helper._computeFastVerifyParams(publicKey, proof, message)
+        await helper.computeFastVerifyParams(publicKey, proof, message)
       })
     }
   })

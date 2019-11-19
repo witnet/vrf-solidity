@@ -1,13 +1,10 @@
-const EllipticCurve = artifacts.require("elliptic-curve-solidity/contracts/EllipticCurve.sol")
-const TestHelperVRF = artifacts.require("TestHelperVRF")
+const TestHelperVRF = artifacts.require("TestHelperInternals")
 const data = require("./data.json")
 
-contract("VRFTestHelper - internals", accounts => {
+contract("VRF - internals", accounts => {
   describe("VRF underlying algorithms: ", () => {
     let helper
     before(async () => {
-      EllipticCurve.deployed()
-      TestHelperVRF.link(EllipticCurve)
       helper = await TestHelperVRF.new()
     })
     for (const [, test] of data.hashToTryAndIncrement.valid.entries()) {
@@ -16,14 +13,14 @@ contract("VRFTestHelper - internals", accounts => {
         const publicKeyY = web3.utils.hexToBytes(test.publicKey.y)
         const publicKey = [publicKeyX, publicKeyY]
         const message = web3.utils.hexToBytes(test.message)
-        const result = await helper._hashToTryAndIncrement.call(publicKey, message)
+        const result = await helper.hashToTryAndIncrement.call(publicKey, message)
         assert(result[0].eq(web3.utils.toBN(test.hashPoint.x)))
         assert(result[1].eq(web3.utils.toBN(test.hashPoint.y)))
       })
     }
     for (const [index, test] of data.hashPoints.valid.entries()) {
       it(`Points to hash (digest from EC points) (${index + 1})`, async () => {
-        const res = await helper._hashPoints.call(
+        const res = await helper.hashPoints.call(
           web3.utils.hexToBytes(test.hPoint.x),
           web3.utils.hexToBytes(test.hPoint.y),
           web3.utils.hexToBytes(test.gamma.x),
@@ -43,26 +40,26 @@ contract("VRFTestHelper - internals", accounts => {
     })
     for (const [index, point] of data.points.valid.entries()) {
       it(`should encode an EC point to compressed format (${index + 1})`, async () => {
-        const res = await helper._encodePoint.call(point.uncompressed.x, point.uncompressed.y)
+        const res = await helper.encodePoint.call(point.uncompressed.x, point.uncompressed.y)
         assert.equal(res, point.compressed)
       })
     }
     for (const [index, test] of data.ecMulSubMul.valid.entries()) {
       it(`should do an ecMulSubMul operation (${index + 1})`, async () => {
-        const res = await helper._ecMulSubMul.call(test.scalar1, test.a1, test.a2, test.scalar2, test.b1, test.b2)
+        const res = await helper.ecMulSubMul.call(test.scalar1, test.a1, test.a2, test.scalar2, test.b1, test.b2)
         assert(res[0].eq(web3.utils.toBN(test.output.x)))
         assert(res[1].eq(web3.utils.toBN(test.output.y)))
       })
     }
     for (const [index, test] of data.ecMul.valid.entries()) {
       it(`should verify an ecMul operation (ecrecover hack) (${index + 1})`, async () => {
-        const res = await helper._ecMulVerify.call(test.scalar, test.x, test.y, test.output.x, test.output.y)
+        const res = await helper.ecMulVerify.call(test.scalar, test.x, test.y, test.output.x, test.output.y)
         assert.equal(res, true)
       })
     }
     for (const [index, test] of data.ecMulSubMulVerify.valid.entries()) {
       it(`should verify an ecMulSubMul operation (ecrecover hack enhanced) (${index + 1})`, async () => {
-        const res = await helper._ecMulSubMulVerify.call(
+        const res = await helper.ecMulSubMulVerify.call(
           test.scalar1,
           test.scalar2,
           test.x,
