@@ -1385,10 +1385,10 @@ ee-first@1.1.1:
   resolved "https://registry.yarnpkg.com/ee-first/-/ee-first-1.1.1.tgz#590c61156b0ae2f4f0255732a158b266bc56b21d"
   integrity sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0=
 
-elliptic-curve-solidity@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/elliptic-curve-solidity/-/elliptic-curve-solidity-0.2.0.tgz#115838ccfbb8a171f285f2391795c072c875e72b"
-  integrity sha512-DC60Q36VowpbG1C9+451qb8CDjmIPynATAPHj6/7FAqfzD2m6ArUzX2QgWuX+u95tpbR9cd5hzRCJ0JWMeUfxg==
+elliptic-curve-solidity@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/elliptic-curve-solidity/-/elliptic-curve-solidity-0.2.1.tgz#e9fc665fbbba3709bd18d8c7887326b2b43acc93"
+  integrity sha512-xYx963k6r3goYC0hn2zWPfqe3XhM+HxMNHJhqB3rzH3YFqY9JEm3HU/T8lkFAkHruBKPHYh5Utqe7RZbAX9k3Q==
 
 elliptic@6.3.3:
   version "6.3.3"

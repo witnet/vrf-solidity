@@ -1,6 +1,6 @@
 {
   "name": "vrf-solidity",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Verifiable Random Function (VRF) library written in Solidity",
   "main": "",
   "scripts": {
@@ -34,7 +34,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "elliptic-curve-solidity": "^0.2.0"
+    "elliptic-curve-solidity": "^0.2.1"
   },
   "devDependencies": {
     "eslint": "^6.6.0",
