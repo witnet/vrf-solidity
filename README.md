@@ -67,17 +67,17 @@ For elliptic curve arithmetic operations `vrf-solidity` uses the `elliptic-curve
 
 ## Usage
 
-`VRF.sol` contract can be used directly by inheritance or by instantiating it.
+`VRF.sol` library contract can be used directly by importing and linking it.
 
 Similarly to the [`VRFTestHelper.sol`](https://github.com/witnet/vrf-solidity/blob/master/test/VRFTestHelper.sol) from the [`test`][test-folder] project folder, a contract may use the library by instantiation as follows:
 
 ```solidity
 pragma solidity ^0.5.0;
 
-import "../contracts/VRF.sol";
+import "vrf-solidity/contracts/VRF.sol";
 
 
-contract VRFTestHelper is VRF {
+contract VRFTestHelper {
 
   function functionUsingVRF(
     uint256[2] memory _publicKey,
@@ -85,7 +85,7 @@ contract VRFTestHelper is VRF {
     bytes memory _message)
   public returns (bool)
   {
-    return verify(_publicKey, _proof, _message);
+    return VRF.verify(_publicKey, _proof, _message);
   }
 }
 ```

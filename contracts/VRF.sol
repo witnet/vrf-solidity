@@ -10,7 +10,7 @@ import "elliptic-curve-solidity/contracts/EllipticCurve.sol";
  * It supports the _SECP256K1_SHA256_TAI_ cipher suite, i.e. the aforementioned algorithms using `SHA256` and the `Secp256k1` curve.
  * @author Witnet Foundation
  */
-contract VRF {
+library VRF {
 
   /**
    * Secp256k1 parameters
@@ -34,7 +34,7 @@ contract VRF {
   /// @param _x The coordinate x
   /// @param _y The coordinate y
   /// @return (qx, qy) The derived point
-  function derivePoint(uint256 _d, uint256 _x, uint256 _y) public pure returns(uint256 qx, uint256 qy) {
+  function derivePoint(uint256 _d, uint256 _x, uint256 _y) internal pure returns(uint256 qx, uint256 qy) {
     (qx, qy) = EllipticCurve.ecMul(
       _d,
       _x,
@@ -48,7 +48,7 @@ contract VRF {
   /// @param _yByte The parity byte following the ec point compressed format
   /// @param _x The coordinate `x` of the point
   /// @return The coordinate `y` of the point
-  function deriveY(uint8 _yByte, uint256 _x) public pure returns (uint256) {
+  function deriveY(uint8 _yByte, uint256 _x) internal pure returns (uint256) {
     return EllipticCurve.deriveY(
       _yByte,
       _x,
@@ -62,7 +62,7 @@ contract VRF {
   /// @param _gammaX The x-coordinate of the gamma EC point
   /// @param _gammaY The y-coordinate of the gamma EC point
   /// @return The VRF hash ouput as shas256 digest
-  function gammaToHash(uint256 _gammaX, uint256 _gammaY) public pure returns (bytes32) {
+  function gammaToHash(uint256 _gammaX, uint256 _gammaY) internal pure returns (bytes32) {
     bytes memory c = abi.encodePacked(
       // Cipher suite code (SECP256K1-SHA256-TAI is 0xFE)
       uint8(0xFE),
@@ -80,7 +80,7 @@ contract VRF {
   /// @param _proof The VRF proof as an array composed of `[gamma-x, gamma-y, c, s]`
   /// @param _message The message (in bytes) used for computing the VRF
   /// @return true, if VRF proof is valid
-  function verify(uint256[2] memory _publicKey, uint256[4] memory _proof, bytes memory _message) public pure returns (bool) {
+  function verify(uint256[2] memory _publicKey, uint256[4] memory _proof, bytes memory _message) internal pure returns (bool) {
     // Step 2: Hash to try and increment (outputs a hashed value, a finite EC point in G)
     uint256[2] memory hPoint;
     (hPoint[0], hPoint[1]) = hashToTryAndIncrement(_publicKey, _message);
@@ -132,7 +132,7 @@ contract VRF {
     bytes memory _message,
     uint256[2] memory _uPoint,
     uint256[4] memory _vComponents)
-  public pure returns (bool)
+  internal pure returns (bool)
   {
     // Step 2: Hash to try and increment -> hashed value, a finite EC point in G
     uint256[2] memory hPoint;
@@ -190,7 +190,7 @@ contract VRF {
   /// @dev Decode VRF proof from bytes
   /// @param _proof The VRF proof as an array composed of `[gamma-x, gamma-y, c, s]`
   /// @return The VRF proof as an array composed of `[gamma-x, gamma-y, c, s]`
-  function decodeProof(bytes memory _proof) public pure returns (uint[4] memory) {
+  function decodeProof(bytes memory _proof) internal pure returns (uint[4] memory) {
     require(_proof.length == 81, "Malformed VRF proof");
     uint8 gammaSign;
     uint256 gammaX;
@@ -214,7 +214,7 @@ contract VRF {
   /// @dev Decode EC point from bytes
   /// @param _point The EC point as bytes
   /// @return The point as `[point-x, point-y]`
-  function decodePoint(bytes memory _point) public pure returns (uint[2] memory) {
+  function decodePoint(bytes memory _point) internal pure returns (uint[2] memory) {
     require(_point.length == 33, "Malformed compressed EC point");
     uint8 sign;
     uint256 x;
@@ -233,7 +233,7 @@ contract VRF {
   /// @param _message The message (in bytes) used for computing the VRF
   /// @return The fast verify required parameters as the tuple `([uPointX, uPointY], [sHX, sHY, cGammaX, cGammaY])`
   function computeFastVerifyParams(uint256[2] memory _publicKey, uint256[4] memory _proof, bytes memory _message)
-    public pure returns (uint256[2] memory, uint256[4] memory)
+    internal pure returns (uint256[2] memory, uint256[4] memory)
   {
     // Requirements for Step 3: U = s*B - c*Y (where B is the generator)
     uint256[2] memory hPoint;

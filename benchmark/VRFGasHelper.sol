@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-import "../contracts/VRF.sol";
+import "vrf-solidity/contracts/VRF.sol";
 
 
 /**
@@ -10,10 +10,10 @@ import "../contracts/VRF.sol";
  * 2. Removal of the `pure` modifier to allow gas consumption analysis
  * @author Witnet Foundation
  */
-contract VRFGasHelper is VRF {
+contract VRFGasHelper {
 
   function _gammaToHash(uint256 gammaX, uint256 gammaY) public returns (bytes32) {
-    return gammaToHash(gammaX, gammaY);
+    return VRF.gammaToHash(gammaX, gammaY);
   }
 
   function _verify(
@@ -22,7 +22,7 @@ contract VRFGasHelper is VRF {
     bytes memory _message)
   public returns (bool)
   {
-    return verify(_publicKey, _proof, _message);
+    return VRF.verify(_publicKey, _proof, _message);
   }
 
   function _fastVerify(
@@ -33,7 +33,7 @@ contract VRFGasHelper is VRF {
     uint256[4] memory _vComponents)
   public returns (bool)
   {
-    return fastVerify(
+    return VRF.fastVerify(
       _publicKey,
       _proof,
       _message,
@@ -42,11 +42,11 @@ contract VRFGasHelper is VRF {
   }
 
   function _decodeProof(bytes memory _proof) public returns (uint[4] memory) {
-    return decodeProof(_proof);
+    return VRF.decodeProof(_proof);
   }
 
   function _decodePoint(bytes memory _point) public returns (uint[2] memory) {
-    return decodePoint(_point);
+    return VRF.decodePoint(_point);
   }
 
   function _computeFastVerifyParams(
@@ -55,6 +55,6 @@ contract VRFGasHelper is VRF {
     bytes memory _message)
   public returns (uint256[2] memory, uint256[4] memory)
   {
-    return computeFastVerifyParams(_publicKey, _proof, _message);
+    return VRF.computeFastVerifyParams(_publicKey, _proof, _message);
   }
 }

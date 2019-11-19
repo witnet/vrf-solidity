@@ -10,10 +10,10 @@ import "../contracts/VRF.sol";
  * 2. Removal of the `pure` modifier to allow gas consumption analysis
  * @author Witnet Foundation
  */
-contract TestHelperVRF is VRF {
+contract TestHelperVRF {
 
   function _hashToTryAndIncrement(uint256[2] memory _publicKey, bytes memory _message) public pure returns (uint, uint) {
-    return hashToTryAndIncrement(_publicKey, _message);
+    return VRF.hashToTryAndIncrement(_publicKey, _message);
   }
 
   function _hashPoints(
@@ -27,7 +27,7 @@ contract TestHelperVRF is VRF {
     uint256 _vPointY)
   public pure returns (bytes16)
   {
-    return hashPoints(
+    return VRF.hashPoints(
       _hPointX,
       _hPointY,
       _gammaX,
@@ -39,7 +39,7 @@ contract TestHelperVRF is VRF {
   }
 
   function _encodePoint(uint256 _x, uint256 _y) public pure returns (bytes memory) {
-    return encodePoint(_x, _y);
+    return VRF.encodePoint(_x, _y);
   }
 
   function _ecMulSubMul(
@@ -51,7 +51,7 @@ contract TestHelperVRF is VRF {
     uint256 _b2)
   public pure returns (uint256, uint256)
   {
-    return ecMulSubMul(
+    return VRF.ecMulSubMul(
       _scalar1,
       _a1,
       _a2,
@@ -68,7 +68,7 @@ contract TestHelperVRF is VRF {
     uint256 _qy)
   public pure returns(bool)
   {
-    return ecMulVerify(
+    return VRF.ecMulVerify(
       _scalar,
       _x,
       _y,
@@ -85,7 +85,7 @@ contract TestHelperVRF is VRF {
     uint256 _qy)
   public pure returns(bool)
   {
-    return ecMulSubMulVerify(
+    return VRF.ecMulSubMulVerify(
       _scalar1,
       _scalar2,
       _x,
