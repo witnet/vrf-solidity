@@ -1,6 +1,6 @@
 {
   "name": "vrf-solidity",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Verifiable Random Function (VRF) library written in Solidity",
   "main": "",
   "scripts": {
@@ -34,21 +34,21 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "elliptic-curve-solidity": "^0.2.1"
+    "elliptic-curve-solidity": "0.2.2"
   },
   "devDependencies": {
-    "eslint": "^6.6.0",
+    "eslint": "^6.8.0",
     "eslint-config-standard": "^14.1.0",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
-    "eth-gas-reporter": "^0.2.12",
+    "eth-gas-reporter": "^0.2.15",
     "ethlint": "^1.2.5",
-    "ganache-cli": "^6.7.0",
-    "solidity-coverage": "^0.6.7",
+    "ganache-cli": "^6.9.1",
+    "solidity-coverage": "^0.7.2",
     "solium": "^1.2.5",
-    "truffle": "^5.1.0",
+    "truffle": "^5.1.17",
     "truffle-assertions": "^0.9.2"
   }
 }

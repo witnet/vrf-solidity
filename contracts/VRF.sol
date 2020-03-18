@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity >=0.5.3 <0.7.0;
 
 import "elliptic-curve-solidity/contracts/EllipticCurve.sol";
 
@@ -17,25 +17,25 @@ library VRF {
    */
 
   // Generator coordinate `x` of the EC curve
-  uint256 constant GX = 0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798;
+  uint256 public constant GX = 0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798;
   // Generator coordinate `y` of the EC curve
-  uint256 constant GY = 0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8;
+  uint256 public constant GY = 0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8;
   // Constant `a` of EC equation
-  uint256 constant AA = 0;
+  uint256 public constant AA = 0;
   // Constant `b` of EC equation
-  uint256 constant BB = 7;
+  uint256 public constant BB = 7;
   // Prime number of the curve
-  uint256 constant PP = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F;
+  uint256 public constant PP = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F;
   // Order of the curve
-  uint256 constant NN = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141;
+  uint256 public constant NN = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141;
 
   /// @dev Public key derivation from private key.
   /// @param _d The scalar
   /// @param _x The coordinate x
   /// @param _y The coordinate y
   /// @return (qx, qy) The derived point
-  function derivePoint(uint256 _d, uint256 _x, uint256 _y) internal pure returns(uint256 qx, uint256 qy) {
-    (qx, qy) = EllipticCurve.ecMul(
+  function derivePoint(uint256 _d, uint256 _x, uint256 _y) internal pure returns (uint256, uint256) {
+    return EllipticCurve.ecMul(
       _d,
       _x,
       _y,
