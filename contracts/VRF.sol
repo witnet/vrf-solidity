@@ -188,7 +188,7 @@ library VRF {
   }
 
   /// @dev Decode VRF proof from bytes
-  /// @param _proof The VRF proof as an array composed of `[gamma-x, gamma-y, c, s]`
+  /// @param _proof The VRF proof as bytes
   /// @return The VRF proof as an array composed of `[gamma-x, gamma-y, c, s]`
   function decodeProof(bytes memory _proof) internal pure returns (uint[4] memory) {
     require(_proof.length == 81, "Malformed VRF proof");
