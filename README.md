@@ -32,7 +32,7 @@ Additionally, the library provides some auxiliary `pure` functions to facilitate
 - **decodeProof**:
   - _Description_: Decode from bytes to VRF proof
   - _Input_:
-    - *_proof*: The VRF proof as an array composed of `[gamma-x, gamma-y, c, s]`
+    - *_proof*: The VRF proof as bytes
   - _Output_:
     - The VRF proof as an array composed of `[gamma-x, gamma-y, c, s]`
 - **decodePoint**:
