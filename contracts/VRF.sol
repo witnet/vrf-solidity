@@ -66,7 +66,7 @@ library VRF {
     bytes memory c = abi.encodePacked(
       // Cipher suite code (SECP256K1-SHA256-TAI is 0xFE)
       uint8(0xFE),
-      // 0x01
+      // 0x03
       uint8(0x03),
       // Compressed Gamma Point
       encodePoint(_gammaX, _gammaY));
