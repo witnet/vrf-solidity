@@ -30,6 +30,7 @@ library VRF {
   uint256 public constant NN = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141;
 
   /// @dev Public key derivation from private key.
+  /// Warning: this function should not be used to derive your public key as it would expose the private key.
   /// @param _d The scalar
   /// @param _x The coordinate x
   /// @param _y The coordinate y
