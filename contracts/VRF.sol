@@ -82,8 +82,7 @@ library VRF {
   /// @return true, if VRF proof is valid
   function verify(uint256[2] memory _publicKey, uint256[4] memory _proof, bytes memory _message) internal pure returns (bool) {
     // Step 2: Hash to try and increment (outputs a hashed value, a finite EC point in G)
-    uint256[2] memory hPoint;
-    (hPoint[0], hPoint[1]) = hashToTryAndIncrement(_publicKey, _message);
+    (uint256 hPointX, uint256 hPointY) = hashToTryAndIncrement(_publicKey, _message);
 
     // Step 3: U = s*B - c*Y (where B is the generator)
     (uint256 uPointX, uint256 uPointY) = ecMulSubMul(
@@ -97,15 +96,15 @@ library VRF {
     // Step 4: V = s*H - c*Gamma
     (uint256 vPointX, uint256 vPointY) = ecMulSubMul(
       _proof[3],
-      hPoint[0],
-      hPoint[1],
+      hPointX,
+      hPointY,
       _proof[2],
       _proof[0],_proof[1]);
 
     // Step 5: derived c from hash points(...)
     bytes16 derivedC = hashPoints(
-      hPoint[0],
-      hPoint[1],
+      hPointX,
+      hPointY,
       _proof[0],
       _proof[1],
       uPointX,
@@ -135,8 +134,7 @@ library VRF {
   internal pure returns (bool)
   {
     // Step 2: Hash to try and increment -> hashed value, a finite EC point in G
-    uint256[2] memory hPoint;
-    (hPoint[0], hPoint[1]) = hashToTryAndIncrement(_publicKey, _message);
+    (uint256 hPointX, uint256 hPointY) = hashToTryAndIncrement(_publicKey, _message);
 
     // Step 3 & Step 4:
     // U = s*B - c*Y (where B is the generator)
@@ -150,8 +148,8 @@ library VRF {
       _uPoint[1]) ||
       !ecMulVerify(
         _proof[3],
-        hPoint[0],
-        hPoint[1],
+        hPointX,
+        hPointY,
         _vComponents[0],
         _vComponents[1]) ||
       !ecMulVerify(
@@ -174,8 +172,8 @@ library VRF {
 
     // Step 5: derived c from hash points(...)
     bytes16 derivedC = hashPoints(
-      hPoint[0],
-      hPoint[1],
+      hPointX,
+      hPointY,
       _proof[0],
       _proof[1],
       _uPoint[0],
@@ -236,8 +234,7 @@ library VRF {
     internal pure returns (uint256[2] memory, uint256[4] memory)
   {
     // Requirements for Step 3: U = s*B - c*Y (where B is the generator)
-    uint256[2] memory hPoint;
-    (hPoint[0], hPoint[1]) = hashToTryAndIncrement(_publicKey, _message);
+    (uint256 hPointX, uint256 hPointY) = hashToTryAndIncrement(_publicKey, _message);
     (uint256 uPointX, uint256 uPointY) = ecMulSubMul(
       _proof[3],
       GX,
@@ -246,7 +243,7 @@ library VRF {
       _publicKey[0],
       _publicKey[1]);
     // Requirements for Step 4: V = s*H - c*Gamma
-    (uint256 sHX, uint256 sHY) = derivePoint(_proof[3], hPoint[0], hPoint[1]);
+    (uint256 sHX, uint256 sHY) = derivePoint(_proof[3], hPointX, hPointY);
     (uint256 cGammaX, uint256 cGammaY) = derivePoint(_proof[2], _proof[0], _proof[1]);
 
     return (
