@@ -11,7 +11,7 @@ contract("VRF", accounts => {
     })
     for (const [index, test] of data.proofs.valid.entries()) {
       it(`should decode a VRF proof from bytes (${index + 1})`, async () => {
-        const decodedProof = await helper.decodeProof.call(web3.utils.hexToBytes(test.pi))
+        const decodedProof = await helper.decodeProof.call(test.pi)
         assert(decodedProof[0].eq(web3.utils.toBN(test.gamma.x)))
         assert(decodedProof[1].eq(web3.utils.toBN(test.gamma.y)))
         assert(decodedProof[2].eq(web3.utils.toBN(test.c)))
@@ -20,19 +20,19 @@ contract("VRF", accounts => {
     }
     for (const [, test] of data.proofs.invalid.entries()) {
       it(`should fail to decode a VRF proof from bytes if malformed (${test.description})`, async () => {
-        await truffleAssert.reverts(helper.decodeProof.call(web3.utils.hexToBytes(test.pi)), test.revert)
+        await truffleAssert.reverts(helper.decodeProof.call(test.pi), test.revert)
       })
     }
     for (const [index, test] of data.points.valid.entries()) {
       it(`should decode a compressed EC Point (${index + 1})`, async () => {
-        const coord = await helper.decodePoint.call(web3.utils.hexToBytes(test.compressed))
+        const coord = await helper.decodePoint.call(test.compressed)
         assert(coord[0].eq(web3.utils.toBN(test.uncompressed.x)))
         assert(coord[1].eq(web3.utils.toBN(test.uncompressed.y)))
       })
     }
     for (const [, test] of data.points.invalid.entries()) {
       it(`should fail to decode a compressed EC Point if malformed (${test.description})`, async () => {
-        await truffleAssert.reverts(helper.decodePoint.call(web3.utils.hexToBytes(test.compressed)), test.revert)
+        await truffleAssert.reverts(helper.decodePoint.call(test.compressed), test.revert)
       })
     }
     for (const [index, test] of data.computeFastVerifyParams.valid.entries()) {
@@ -40,7 +40,7 @@ contract("VRF", accounts => {
         const publicKeyX = web3.utils.hexToBytes(test.publicKey.x)
         const publicKeyY = web3.utils.hexToBytes(test.publicKey.y)
         const publicKey = [publicKeyX, publicKeyY]
-        const proof = await helper.decodeProof.call(web3.utils.hexToBytes(test.pi))
+        const proof = await helper.decodeProof.call(test.pi)
         const message = web3.utils.hexToBytes(test.message)
         const params = await helper.computeFastVerifyParams.call(publicKey, proof, message)
         assert(params[0][0].eq(web3.utils.toBN(test.uPoint.x)))
@@ -56,7 +56,7 @@ contract("VRF", accounts => {
         const publicKeyX = web3.utils.hexToBytes(test.publicKey.x)
         const publicKeyY = web3.utils.hexToBytes(test.publicKey.y)
         const publicKey = [publicKeyX, publicKeyY]
-        const proof = await helper.decodeProof.call(web3.utils.hexToBytes(test.pi))
+        const proof = await helper.decodeProof.call(test.pi)
         const message = web3.utils.hexToBytes(test.message)
         const params = await helper.computeFastVerifyParams.call(publicKey, proof, message)
         const results = [
@@ -80,8 +80,8 @@ contract("VRF", accounts => {
     })
     for (const [index, test] of data.verify.valid.entries()) {
       it(`should verify a VRF proof (${index + 1})`, async () => {
-        const publicKey = await helper.decodePoint.call(web3.utils.hexToBytes(test.pub))
-        const proof = await helper.decodeProof.call(web3.utils.hexToBytes(test.pi))
+        const publicKey = await helper.decodePoint.call(test.pub)
+        const proof = await helper.decodeProof.call(test.pi)
         const message = web3.utils.hexToBytes(test.message)
         const result = await helper.verify.call(publicKey, proof, message)
         assert.equal(result, true)
@@ -92,16 +92,15 @@ contract("VRF", accounts => {
         const publicKeyX = web3.utils.hexToBytes(test.publicKey.x)
         const publicKeyY = web3.utils.hexToBytes(test.publicKey.y)
         const publicKey = [publicKeyX, publicKeyY]
-        const proof = await helper.decodeProof.call(web3.utils.hexToBytes(test.pi))
-        const message = web3.utils.hexToBytes(test.message)
-        const result = await helper.verify.call(publicKey, proof, message)
+        const proof = await helper.decodeProof.call(test.pi)
+        const result = await helper.verify.call(publicKey, proof, test.message)
         assert.equal(result, false)
       })
     }
     for (const [index, test] of data.fastVerify.valid.entries()) {
       it(`should fast verify a VRF proof (${index + 1})`, async () => {
         // Standard inputs
-        const proof = await helper.decodeProof.call(web3.utils.hexToBytes(test.pi))
+        const proof = await helper.decodeProof.call(test.pi)
         const publicKeyX = web3.utils.hexToBytes(test.publicKey.x)
         const publicKeyY = web3.utils.hexToBytes(test.publicKey.y)
         const publicKey = [publicKeyX, publicKeyY]
@@ -131,7 +130,7 @@ contract("VRF", accounts => {
     for (const [, test] of data.fastVerify.invalid.entries()) {
       it(`should return false when fast verifying an invalid VRF proof (${test.description})`, async () => {
         // Standard inputs
-        const proof = await helper.decodeProof.call(web3.utils.hexToBytes(test.pi))
+        const proof = await helper.decodeProof.call(test.pi)
         const publicKeyX = web3.utils.hexToBytes(test.publicKey.x)
         const publicKeyY = web3.utils.hexToBytes(test.publicKey.y)
         const publicKey = [publicKeyX, publicKeyY]
@@ -166,7 +165,7 @@ contract("VRF", accounts => {
     })
     for (const [index, test] of data.verify.valid.entries()) {
       it(`should generate hash output from VRF proof (${index + 1})`, async () => {
-        const proof = await helper.decodeProof.call(web3.utils.hexToBytes(test.pi))
+        const proof = await helper.decodeProof.call(test.pi)
         const hash = await helper.gammaToHash.call(proof[0], proof[1])
         assert.equal(hash, test.hash)
       })
