@@ -72,7 +72,7 @@ For elliptic curve arithmetic operations `vrf-solidity` uses the `elliptic-curve
 Similarly to the [`VRFTestHelper.sol`](https://github.com/witnet/vrf-solidity/blob/master/test/VRFTestHelper.sol) from the [`test`][test-folder] project folder, a contract may use the library by instantiation as follows:
 
 ```solidity
-pragma solidity 0.6.4;
+pragma solidity 0.6.12;
 
 import "vrf-solidity/contracts/VRF.sol";
 
