@@ -138,7 +138,7 @@ Some EC arithmetic operations have been opmitized thanks to the impressive work 
 
 ## License
 
-`vrf-rs` is published under the [MIT license][license].
+`vrf-solidity` is published under the [MIT license][license].
 
 [license]: https://github.com/witnet/vrf-rs/blob/master/LICENSE
 [test-folder]: https://github.com/witnet/vrf-solidity/blob/master/test
